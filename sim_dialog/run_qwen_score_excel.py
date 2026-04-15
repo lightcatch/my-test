@@ -280,6 +280,41 @@ def extract_json_object_text(text: str) -> str:
     return stripped[start : end + 1].strip()
 
 
+def repair_invalid_json_escapes(text: str) -> str:
+    valid_escape_starts = {'"', "\\", "/", "b", "f", "n", "r", "t", "u"}
+    repaired: list[str] = []
+    in_string = False
+    escape = False
+
+    for ch in text:
+        if not in_string:
+            repaired.append(ch)
+            if ch == '"':
+                in_string = True
+            continue
+
+        if escape:
+            if ch in valid_escape_starts:
+                repaired.append(ch)
+            else:
+                # Preserve the original backslash as a literal inside the JSON string.
+                repaired.append("\\")
+                repaired.append(ch)
+            escape = False
+            continue
+
+        if ch == "\\":
+            repaired.append(ch)
+            escape = True
+            continue
+
+        repaired.append(ch)
+        if ch == '"':
+            in_string = False
+
+    return "".join(repaired)
+
+
 def normalize_score_value(value: Any) -> int | float:
     if isinstance(value, bool):
         raise ValueError("Score value cannot be bool.")
@@ -304,7 +339,14 @@ def parse_score_response(raw_text: str, score_field: str) -> dict[str, Any]:
     try:
         parsed = json.loads(candidate)
     except json.JSONDecodeError as exc:
-        raise ValueError(f"Failed to parse JSON response: {exc}") from exc
+        repaired_candidate = repair_invalid_json_escapes(candidate)
+        if repaired_candidate != candidate:
+            try:
+                parsed = json.loads(repaired_candidate)
+            except json.JSONDecodeError as repaired_exc:
+                raise ValueError(f"Failed to parse JSON response: {repaired_exc}") from repaired_exc
+        else:
+            raise ValueError(f"Failed to parse JSON response: {exc}") from exc
 
     if not isinstance(parsed, dict):
         raise ValueError("Parsed response is not a JSON object.")
@@ -334,12 +376,56 @@ def build_client() -> OpenAI:
     )
 
 
+def should_use_streaming() -> bool:
+    use_streaming = getattr(score_config, "USE_STREAMING", False)
+    if not isinstance(use_streaming, bool):
+        raise ValueError("USE_STREAMING must be a boolean in score_dialog_config.py")
+    return use_streaming
+
+
+def extract_stream_response_text(stream: Any) -> str:
+    content_parts: list[str] = []
+    reasoning_parts: list[str] = []
+
+    try:
+        for chunk in stream:
+            choices = getattr(chunk, "choices", None) or []
+            if not choices:
+                continue
+
+            delta = getattr(choices[0], "delta", None)
+            if delta is None:
+                continue
+
+            content_piece = getattr(delta, "content", None)
+            reasoning_piece = getattr(delta, "reasoning_content", None)
+
+            if content_piece:
+                content_parts.append(str(content_piece))
+            if reasoning_piece:
+                reasoning_parts.append(str(reasoning_piece))
+    finally:
+        if stream is not None and hasattr(stream, "close"):
+            stream.close()
+
+    merged_content = "".join(content_parts).strip()
+    if merged_content:
+        return merged_content
+
+    merged_reasoning = "".join(reasoning_parts).strip()
+    if merged_reasoning:
+        return merged_reasoning
+
+    return ""
+
+
 def request_dimension_score(
     client: OpenAI,
     dimension: dict[str, Any],
     packed_user_message: str,
 ) -> dict[str, Any]:
     dim_name = dimension["name"]
+    use_streaming = should_use_streaming()
     messages: list[dict[str, str]] = [
         {"role": "system", "content": dimension["system_prompt"]},
         {"role": "user", "content": packed_user_message},
@@ -358,6 +444,9 @@ def request_dimension_score(
     extra_body = dimension.get("extra_body")
     if isinstance(extra_body, dict) and extra_body:
         request["extra_body"] = extra_body
+    if use_streaming:
+        request["stream"] = True
+        request["stream_options"] = {"include_usage": True}
 
     last_error: Exception | None = None
     raw_text = ""
@@ -371,7 +460,10 @@ def request_dimension_score(
         try:
             response = client.chat.completions.create(**request)
             latency_ms = round((time.perf_counter() - started) * 1000, 2)
-            raw_text = extract_response_text(response)
+            if use_streaming:
+                raw_text = extract_stream_response_text(response)
+            else:
+                raw_text = extract_response_text(response)
             parsed = parse_score_response(raw_text, dimension["score_field"])
             clean_parsed = {key: value for key, value in parsed.items() if key != "_normalized_score"}
 
@@ -547,10 +639,12 @@ def main() -> int:
     output_path = build_output_path(input_path)
     dimensions = validate_dimensions()
     assistant_prompt, packed_template = validate_shared_prompt_config()
+    use_streaming = should_use_streaming()
 
     print(f"[INFO] Input Excel: {input_path}")
     print(f"[INFO] Output Excel: {output_path}")
     print(f"[INFO] Active dimensions: {[dimension['name'] for dimension in dimensions]}")
+    print(f"[INFO] Request mode: {'streaming' if use_streaming else 'non-stream'}")
 
     selected_sheet, conversations = load_sessions_from_excel(input_path)
     print(f"[INFO] Worksheet: {selected_sheet}")
