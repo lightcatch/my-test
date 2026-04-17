@@ -6,5 +6,8 @@ dist/
 wheels/
 *.egg-info
 outputs
+ASR_test/audio
+voice_test\audio_bad_samples
+
 # Virtual environments
 .venv
