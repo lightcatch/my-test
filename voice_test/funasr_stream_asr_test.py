@@ -83,8 +83,8 @@ XUNFEI_READ_TIMEOUT_S = 3
 XUNFEI_HANDSHAKE_WAIT_S = 5
 XUNFEI_RESULT_TIMEOUT_S = 40
 
-DEFAULT_AUDIO_SUBDIR = "vad_audio"
-DEFAULT_EXCEL_PREFIX = "funasr_vad_asr_result"
+DEFAULT_AUDIO_SUBDIR = "audio_bad_samples"
+DEFAULT_EXCEL_PREFIX = "asr_result"
 
 # backward-compatible aliases used by existing CLI/options
 DEFAULT_ENDPOINT = ALI_ENDPOINT

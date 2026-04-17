@@ -224,7 +224,7 @@ SYSTEM_PROMPT_DIMENSION_1 = """
     "expressive_diversity": "分值",
     "empathy": "分值"
   },
-  "low_score": "输出打分最低的十条原文，每一条都列出来，用**分隔",
+  "low_score": "输出打分最低的十条原文，每一条都列出来，并在后面用括号解释为什么低分，用**分隔",
   "final_score": "detailed_scores 相加后的总分",
   "improvement_suggestion": "针对如何提升角色吸引力、强化情感连接及丰富表达方式给出改进建议"
 }
@@ -275,7 +275,7 @@ SYSTEM_PROMPT_DIMENSION_2 = """
     "persona_behavior": "分值",
     "persona_utterance": "分值"
   },
-  "low_score": "输出打分最低的十条原文，每一条都列出来，用**分隔",
+  "low_score": "输出打分最低的十条原文，每一条都列出来，并在后面用括号解释为什么低分，用**分隔",
   "final_score": "detailed_scores 相加后的总分",
   "improvement_suggestion": "针对角色还原度欠缺的地方给出改进建议"
 }
@@ -311,7 +311,7 @@ JSON
     "coherency": "分值",
     "consistency": "分值"
   },
-  "low_score": "输出打分最低的十条原文，每一条都列出来，用**分隔",
+  "low_score": "输出打分最低的十条原文，每一条都列出来，并在后面用括号解释为什么低分，用**分隔",
   "final_score": "detailed_scores 相加后的总分",
   "improvement_suggestion": "针对失分点的改进建议"
 }

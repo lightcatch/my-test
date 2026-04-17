@@ -89,6 +89,94 @@ class ConversationManager:
 
         return self.used_prompt
 
+    def _extract_tool_call_parts(self, tool_call: Any) -> Tuple[str, str]:
+        """提取 tool call 的函数名和参数，兼容 dict / SDK 对象结构。"""
+        if isinstance(tool_call, dict):
+            function_info = tool_call.get("function") or {}
+            name = function_info.get("name", "")
+            arguments = function_info.get("arguments", "")
+            return str(name or "").strip(), str(arguments or "").strip()
+
+        function_info = getattr(tool_call, "function", None)
+        name = getattr(function_info, "name", "") if function_info else ""
+        arguments = getattr(function_info, "arguments", "") if function_info else ""
+        return str(name or "").strip(), str(arguments or "").strip()
+
+    def _render_tool_call_placeholder(
+        self,
+        tool_calls: Optional[List[Any]],
+        tool_call_content: str = ""
+    ) -> str:
+        """为未回填的 tool call 生成可读占位，避免空 assistant 污染上下文。"""
+        rendered = []
+        for tool_call in tool_calls or []:
+            function_name, arguments = self._extract_tool_call_parts(tool_call)
+            if function_name and arguments:
+                rendered.append(f"{function_name}({arguments})")
+            elif function_name:
+                rendered.append(function_name)
+            elif arguments:
+                rendered.append(arguments)
+
+        summary = "；".join(part for part in rendered if part).strip()
+        if not summary:
+            summary = (tool_call_content or "").strip() or "未解析到工具调用参数"
+
+        return f"[工具调用未回填] {summary}"
+
+    def _normalize_history_message(self, msg: Dict[str, Any]) -> Dict[str, Any]:
+        """将历史消息转换成可安全回传给模型的格式。"""
+        role = msg.get("role", "")
+
+        if role == "tool":
+            return {
+                "role": role,
+                "content": msg.get("content", ""),
+                "tool_call_id": msg.get("tool_call_id", "")
+            }
+
+        content = msg.get("content", "")
+        content_text = str(content or "").strip()
+        if role == "assistant" and not content_text and msg.get("tool_calls"):
+            content = self._render_tool_call_placeholder(
+                msg.get("tool_calls"),
+                msg.get("tool_call_content", "")
+            )
+
+        return {
+            "role": role,
+            "content": content
+        }
+
+    def _get_recent_history(self, limit: int = 11) -> List[Dict[str, Any]]:
+        """截取最近历史时尽量从 user 开始，避免半截 assistant/tool 链路。"""
+        if limit <= 0 or not self.chat_history:
+            return []
+
+        start_index = max(0, len(self.chat_history) - limit)
+        while start_index > 0 and self.chat_history[start_index].get("role") != "user":
+            start_index -= 1
+
+        return self.chat_history[start_index:]
+
+    def _format_messages_for_log(self, messages: List[Dict[str, Any]]) -> str:
+        """把 messages 打印成带序号的日志，便于排查顺序问题。"""
+        lines = []
+        for index, msg in enumerate(messages, start=1):
+            role = msg.get("role", "")
+            content = str(msg.get("content", "")).replace("\n", "\\n")
+            if len(content) > 120:
+                content = f"{content[:117]}..."
+
+            extra_parts = []
+            if msg.get("tool_call_id"):
+                extra_parts.append(f"tool_call_id={msg['tool_call_id']}")
+
+            extra = f" [{' '.join(extra_parts)}]" if extra_parts else ""
+            lines.append(f"{index:02d}. {role}{extra}: {content}")
+
+        return "\n".join(lines)
+
     def build_messages_with_memory(self, user_content: str) -> Tuple[List[Dict], str, float]:
         """构建消息列表（包含记忆查询）"""
         # 查询记忆
@@ -105,28 +193,10 @@ class ConversationManager:
 # 构建消息列表
         messages = [{"role": "system", "content": system_prompt}]
 
-        # 从对话历史中获取最后11条消息，同时包含tool_call_id (最后5轮)
+        # 从最近历史中取完整链路，避免窗口恰好从 assistant 半截开始
         clean_history = []
-        for msg in self.chat_history[-11:]:
-            if msg["role"] == "tool":
-                # tool消息需要包含tool_call_id
-                clean_history.append({
-                    "role": msg["role"],
-                    "content": msg["content"],
-                    "tool_call_id": msg.get("tool_call_id", "")
-                })
-            elif msg["role"] == "assistant" and "tool_calls" in msg and msg["tool_calls"]:
-                # 不回传 tool_calls，避免未闭环工具消息导致下一轮请求报错
-                clean_history.append({
-                    "role": msg["role"],
-                    "content": msg.get("content", ""),
-                })
-            else:
-                # user消息和其他消息只需要role和content
-                clean_history.append({
-                    "role": msg["role"],
-                    "content": msg.get("content", "")
-                })
+        for msg in self._get_recent_history(limit=11):
+            clean_history.append(self._normalize_history_message(msg))
 
         messages.extend(clean_history)
 
@@ -140,28 +210,9 @@ class ConversationManager:
         # 构建消息列表
         messages = [{"role": "system", "content": system_prompt}]
 
-        # 从所有对话历史中获取消息，同时包含tool_call_id
         clean_history = []
         for msg in self.chat_history:
-            if msg["role"] == "tool":
-                # tool消息需要包含tool_call_id
-                clean_history.append({
-                    "role": msg["role"],
-                    "content": msg["content"],
-                    "tool_call_id": msg.get("tool_call_id", "")
-                })
-            elif msg["role"] == "assistant" and "tool_calls" in msg and msg["tool_calls"]:
-                # 不回传 tool_calls，避免未闭环工具消息导致下一轮请求报错
-                clean_history.append({
-                    "role": msg["role"],
-                    "content": msg.get("content", ""),
-                })
-            else:
-                # user消息和其他消息只需要role和content
-                clean_history.append({
-                    "role": msg["role"],
-                    "content": msg.get("content", "")
-                })
+            clean_history.append(self._normalize_history_message(msg))
 
         messages.extend(clean_history)
 
@@ -279,7 +330,9 @@ class ConversationManager:
 
     def call_llm(self, messages: List[Dict]) -> Any:
         """调用LLM API"""
-        print(f"【本轮调用LLM消息体】\n{messages}\n")
+        print(f"【本轮调用LLM消息体，共{len(messages)}条】")
+        print(self._format_messages_for_log(messages))
+        print()
 
         return self.client.chat.completions.create(
             model=self.used_model,
@@ -287,7 +340,7 @@ class ConversationManager:
             tools=[
                 # play_music_function_desc,
                 # play_story_function_desc,
-                GET_WEATHER_FUNCTION_DESC,
+                # GET_WEATHER_FUNCTION_DESC,
                 get_time_function_desc,
                 handle_exit_intent_function_desc,
                 # audio_function_desc,
@@ -313,8 +366,11 @@ class ConversationManager:
     def add_assistant_message(self, processor: Dict, memo_latency: float):
         """添加助手消息到历史记录"""
         if processor["full_content"] or processor["tool_calls"]:
-            # 仅记录模型真实文本回复；若本轮仅有 function call，则 content 置空
-            content = processor["full_content"] if processor["full_content"] else ""
+            # 纯 tool call 轮次也写入可读占位，避免空 assistant 污染后续上下文
+            content = processor["full_content"] if processor["full_content"] else self._render_tool_call_placeholder(
+                processor["tool_calls"],
+                processor["tool_call_content"]
+            )
             assistant_message = {
                 "role": "assistant",
                 "content": content,
@@ -324,7 +380,9 @@ class ConversationManager:
                 # "token_usage": processor["token_usage"],
             }
 
-            # 保留 tool_calls 仅用于当前轮展示，不写入历史请求链路
+            if processor["tool_calls"]:
+                assistant_message["tool_calls"] = processor["tool_calls"]
+                assistant_message["tool_call_content"] = processor["tool_call_content"]
 
             self.chat_history.append(assistant_message)
 
