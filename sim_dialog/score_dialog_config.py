@@ -16,20 +16,11 @@ except ImportError:
     from dialog_config import ASSISTANT_PROMPT_ACTIVE
 
 
-CASE_FILES = [
-    "outputs/2-3_女_测试用例.xlsx",
-    "outputs/2-3_男_测试用例.xlsx",
-    "outputs/3-6_女_测试用例.xlsx",
-    "outputs/3-6_男_测试用例.xlsx",
-    "outputs/6-8_女_测试用例.xlsx",
-    "outputs/6-8_男_测试用例.xlsx",
-]
+# Fill in the Excel folder to score. Supports relative paths from PROJECT_ROOT or absolute paths.
+ACTIVE_INPUT_PATH = r"outputs\score"
 
-# Default: use the first file in CASE_FILES.
-ACTIVE_CASE_INDEX = 5
-
-# If this is filled, it overrides ACTIVE_CASE_INDEX.
-ACTIVE_INPUT_PATH = ""
+# Batch score output root folder. Each run creates a timestamped subfolder here.
+SCORE_OUTPUT_ROOT = r"outputs\score_outputs"
 
 # Output filename prefix.
 OUTPUT_BASENAME = "qwen_score"

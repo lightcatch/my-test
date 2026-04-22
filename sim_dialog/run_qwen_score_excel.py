@@ -25,6 +25,7 @@ except ImportError:
 WINDOWS_INVALID_FILENAME_CHARS = '<>:"/\\|?*'
 REQUEST_RETRY_TIMES = 3
 REQUEST_RETRY_BACKOFF_SEC = 1.5
+EXCEL_SUFFIXES = {".xlsx", ".xlsm"}
 
 
 def sanitize_filename_part(name: str) -> str:
@@ -42,37 +43,57 @@ def resolve_config_path(raw_path: str) -> Path:
     return path
 
 
-def resolve_input_path() -> Path:
+def resolve_input_dir() -> Path:
     manual_path = str(getattr(score_config, "ACTIVE_INPUT_PATH", "") or "").strip()
-    if manual_path:
-        path = resolve_config_path(manual_path)
-        if not path.exists():
-            raise FileNotFoundError(f"Configured ACTIVE_INPUT_PATH does not exist: {path}")
-        return path
-
-    case_files = list(getattr(score_config, "CASE_FILES", []))
-    if not case_files:
-        raise ValueError("CASE_FILES is empty in score_dialog_config.py")
-
-    active_index = getattr(score_config, "ACTIVE_CASE_INDEX", 0)
-    if not isinstance(active_index, int):
-        raise ValueError("ACTIVE_CASE_INDEX must be an integer.")
-    if active_index < 0 or active_index >= len(case_files):
+    if not manual_path:
         raise ValueError(
-            f"ACTIVE_CASE_INDEX out of range: {active_index}. Valid range is 0 to {len(case_files) - 1}."
+            "ACTIVE_INPUT_PATH is empty in score_dialog_config.py. "
+            "Please fill in score_dialog_config.py -> ACTIVE_INPUT_PATH with an Excel folder."
         )
 
-    path = resolve_config_path(str(case_files[active_index]))
+    path = resolve_config_path(manual_path)
     if not path.exists():
-        raise FileNotFoundError(f"Configured case file does not exist: {path}")
+        raise FileNotFoundError(f"Configured ACTIVE_INPUT_PATH does not exist: {path}")
+    if not path.is_dir():
+        raise NotADirectoryError(f"Configured ACTIVE_INPUT_PATH must be an Excel folder: {path}")
     return path
 
 
-def build_output_path(input_path: Path) -> Path:
+def natural_sort_key(path: Path) -> tuple[Any, ...]:
+    return tuple(
+        int(part) if part.isdigit() else part.casefold()
+        for part in re.split(r"(\d+)", path.name)
+    )
+
+
+def collect_input_excels(input_dir: Path) -> list[Path]:
+    return sorted(
+        (
+            path
+            for path in input_dir.iterdir()
+            if path.is_file()
+            and path.suffix.casefold() in EXCEL_SUFFIXES
+            and not path.name.startswith("~$")
+        ),
+        key=natural_sort_key,
+    )
+
+
+def build_batch_output_dir(timestamp: str) -> Path:
+    output_root = str(getattr(score_config, "SCORE_OUTPUT_ROOT", "outputs/score_outputs") or "").strip()
+    if not output_root:
+        raise ValueError(
+            "SCORE_OUTPUT_ROOT is empty in score_dialog_config.py. "
+            "Please fill in score_dialog_config.py -> SCORE_OUTPUT_ROOT."
+        )
+    return resolve_config_path(output_root) / timestamp
+
+
+def build_output_path(input_path: Path, output_dir: Path) -> Path:
     base_name = sanitize_filename_part(str(getattr(score_config, "OUTPUT_BASENAME", "qwen_score")))
     source_stem = sanitize_filename_part(input_path.stem)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return PROJECT_ROOT / "outputs" / f"{base_name}_{source_stem}_{timestamp}.xlsx"
+    timestamp = sanitize_filename_part(output_dir.name)
+    return output_dir / f"{base_name}_{source_stem}_{timestamp}.xlsx"
 
 
 def validate_dimensions() -> list[dict[str, Any]]:
@@ -634,23 +655,21 @@ def write_excel(
     workbook.save(output_path)
 
 
-def main() -> int:
-    input_path = resolve_input_path()
-    output_path = build_output_path(input_path)
-    dimensions = validate_dimensions()
-    assistant_prompt, packed_template = validate_shared_prompt_config()
-    use_streaming = should_use_streaming()
-
+def process_one_excel(
+    input_path: Path,
+    output_path: Path,
+    client: OpenAI,
+    dimensions: list[dict[str, Any]],
+    assistant_prompt: str,
+    packed_template: str,
+) -> None:
     print(f"[INFO] Input Excel: {input_path}")
     print(f"[INFO] Output Excel: {output_path}")
-    print(f"[INFO] Active dimensions: {[dimension['name'] for dimension in dimensions]}")
-    print(f"[INFO] Request mode: {'streaming' if use_streaming else 'non-stream'}")
 
     selected_sheet, conversations = load_sessions_from_excel(input_path)
     print(f"[INFO] Worksheet: {selected_sheet}")
     print(f"[INFO] Sessions found: {len(conversations)}")
 
-    client = build_client()
     summary_rows: list[dict[str, Any]] = []
     summary_field_order: dict[str, list[str]] = {dimension["name"]: [] for dimension in dimensions}
     dimension_rows: dict[str, list[dict[str, Any]]] = {dimension["name"]: [] for dimension in dimensions}
@@ -709,6 +728,59 @@ def main() -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     write_excel(output_path, summary_rows, summary_columns, dimensions, dimension_rows, error_rows)
     print(f"[DONE] Score Excel saved to: {output_path}")
+
+
+def main() -> int:
+    input_dir = resolve_input_dir()
+    input_excels = collect_input_excels(input_dir)
+    if not input_excels:
+        print(f"[ERROR] No .xlsx/.xlsm files found in input folder: {input_dir}")
+        return 1
+
+    dimensions = validate_dimensions()
+    assistant_prompt, packed_template = validate_shared_prompt_config()
+    use_streaming = should_use_streaming()
+    batch_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_dir = build_batch_output_dir(batch_timestamp)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    print(f"[INFO] Input folder: {input_dir}")
+    print(f"[INFO] Output folder: {output_dir}")
+    print(f"[INFO] Excel files found: {len(input_excels)}")
+    print(f"[INFO] Active dimensions: {[dimension['name'] for dimension in dimensions]}")
+    print(f"[INFO] Request mode: {'streaming' if use_streaming else 'non-stream'}")
+
+    client = build_client()
+    failed_files: list[tuple[Path, str]] = []
+    total_files = len(input_excels)
+    for file_index, input_path in enumerate(input_excels, start=1):
+        output_path = build_output_path(input_path, output_dir)
+        print(
+            f"[INFO] File {file_index}/{total_files}: {input_path.name} -> {output_path.name}"
+        )
+        try:
+            process_one_excel(
+                input_path=input_path,
+                output_path=output_path,
+                client=client,
+                dimensions=dimensions,
+                assistant_prompt=assistant_prompt,
+                packed_template=packed_template,
+            )
+        except Exception as exc:  # noqa: BLE001
+            failed_files.append((input_path, str(exc)))
+            print(f"[ERROR] Failed to score {input_path}: {exc}")
+            continue
+
+    succeeded_count = total_files - len(failed_files)
+    print(
+        f"[DONE] Batch scoring finished. succeeded={succeeded_count}, "
+        f"failed={len(failed_files)}, output_folder={output_dir}"
+    )
+    if failed_files:
+        for input_path, error_message in failed_files:
+            print(f"[ERROR] Failed file: {input_path} | {error_message}")
+        return 1
     return 0
 
 
