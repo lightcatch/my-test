@@ -1,0 +1,44 @@
+{
+  "model": "doubao-seed-2-1-lite-260915",
+  "prompt": "请用一句话介绍人工智能。",
+  "records": [
+    {
+      "mode": "non_stream",
+      "run_index": 1,
+      "status": "success",
+      "ttft_ms": null,
+      "total_ms": 13603.741,
+      "output_chars": 106
+    },
+    {
+      "mode": "stream",
+      "run_index": 1,
+      "status": "success",
+      "ttft_ms": 979.976,
+      "total_ms": 15038.363,
+      "output_chars": 83
+    }
+  ],
+  "summary": {
+    "non_stream": {
+      "success": 1,
+      "failed": 0,
+      "total_mean_ms": 13603.741,
+      "total_p50_ms": 13603.741,
+      "total_p90_ms": 13603.741,
+      "ttft_mean_ms": null,
+      "ttft_p50_ms": null,
+      "ttft_p90_ms": null
+    },
+    "stream": {
+      "success": 1,
+      "failed": 0,
+      "total_mean_ms": 15038.363,
+      "total_p50_ms": 15038.363,
+      "total_p90_ms": 15038.363,
+      "ttft_mean_ms": 979.976,
+      "ttft_p50_ms": 979.976,
+      "ttft_p90_ms": 979.976
+    }
+  }
+}

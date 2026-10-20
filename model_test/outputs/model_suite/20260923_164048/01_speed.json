@@ -1,0 +1,108 @@
+{
+  "model": "doubao-seed-2-0-lite-260215",
+  "prompt": "请用一句话介绍人工智能。",
+  "records": [
+    {
+      "mode": "non_stream",
+      "run_index": 1,
+      "status": "success",
+      "ttft_ms": null,
+      "total_ms": 12354.114,
+      "output_chars": 72
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 2,
+      "status": "success",
+      "ttft_ms": null,
+      "total_ms": 10810.338,
+      "output_chars": 61
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 3,
+      "status": "success",
+      "ttft_ms": null,
+      "total_ms": 13725.989,
+      "output_chars": 75
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 4,
+      "status": "success",
+      "ttft_ms": null,
+      "total_ms": 13909.162,
+      "output_chars": 75
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 5,
+      "status": "success",
+      "ttft_ms": null,
+      "total_ms": 14263.958,
+      "output_chars": 92
+    },
+    {
+      "mode": "stream",
+      "run_index": 1,
+      "status": "success",
+      "ttft_ms": 1280.89,
+      "total_ms": 7473.175,
+      "output_chars": 85
+    },
+    {
+      "mode": "stream",
+      "run_index": 2,
+      "status": "success",
+      "ttft_ms": 1330.379,
+      "total_ms": 11263.924,
+      "output_chars": 86
+    },
+    {
+      "mode": "stream",
+      "run_index": 3,
+      "status": "success",
+      "ttft_ms": 1539.571,
+      "total_ms": 9782.067,
+      "output_chars": 86
+    },
+    {
+      "mode": "stream",
+      "run_index": 4,
+      "status": "success",
+      "ttft_ms": 1286.644,
+      "total_ms": 12631.526,
+      "output_chars": 68
+    },
+    {
+      "mode": "stream",
+      "run_index": 5,
+      "status": "success",
+      "ttft_ms": 1049.255,
+      "total_ms": 19382.313,
+      "output_chars": 101
+    }
+  ],
+  "summary": {
+    "non_stream": {
+      "success": 5,
+      "failed": 0,
+      "total_mean_ms": 13012.712,
+      "total_p50_ms": 13725.989,
+      "total_p90_ms": 14263.958,
+      "ttft_mean_ms": null,
+      "ttft_p50_ms": null,
+      "ttft_p90_ms": null
+    },
+    "stream": {
+      "success": 5,
+      "failed": 0,
+      "total_mean_ms": 12106.601,
+      "total_p50_ms": 11263.924,
+      "total_p90_ms": 19382.313,
+      "ttft_mean_ms": 1297.348,
+      "ttft_p50_ms": 1286.644,
+      "ttft_p90_ms": 1539.571
+    }
+  }
+}

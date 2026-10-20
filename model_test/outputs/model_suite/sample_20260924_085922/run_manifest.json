@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-09-24T09:02:49",
+  "test_model": "doubao-seed-2-1-lite-260915",
+  "review_model": "qwen3-max",
+  "results": [
+    {
+      "name": "speed",
+      "status": "failed",
+      "error": "FileNotFoundError: [Errno 2] No such file or directory: 'model_test\\\\outputs\\\\model_suite\\\\sample_20260924_085922\\\\_temporary\\\\01_speed.json'"
+    },
+    {
+      "name": "dialog",
+      "status": "failed",
+      "error": "OSError: Cannot save file into a non-existent directory: 'model_test\\outputs\\model_suite\\sample_20260924_085922\\_temporary'"
+    },
+    {
+      "name": "function_call",
+      "status": "success",
+      "output": "model_test\\outputs\\model_suite\\sample_20260924_085922\\doubao-seed-2-1-lite-260915_总表.xlsx",
+      "metadata": {
+        "combined_workbook": true
+      }
+    },
+    {
+      "name": "latency",
+      "status": "success",
+      "output": "model_test\\outputs\\model_suite\\sample_20260924_085922\\doubao-seed-2-1-lite-260915_总表.xlsx",
+      "metadata": {
+        "combined_workbook": true
+      }
+    },
+    {
+      "name": "score",
+      "status": "failed",
+      "error": "RuntimeError: Sample dialog output is missing for score stage."
+    }
+  ]
+}

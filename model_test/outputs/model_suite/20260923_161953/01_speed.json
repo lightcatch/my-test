@@ -1,0 +1,116 @@
+{
+  "model": "doubao-seed-2-1-lite-260915",
+  "prompt": "请用一句话介绍人工智能。",
+  "records": [
+    {
+      "mode": "non_stream",
+      "run_index": 1,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 495.616,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 0217901515951374e2842eb712e854fa24899212a499930ac4867', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 2,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 40.495,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account %s has not activated the model %s. Please activate the model service in the Ark Console. Request id: 0217901515951794e2842eb712e854fa24899212a49993081859b', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 3,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 40.278,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 0217901515952194e2842eb712e854fa24899212a4999307f1e15', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 4,
+      "status": "success",
+      "ttft_ms": null,
+      "total_ms": 33420.491,
+      "output_chars": 107
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 5,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 39.6,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 0217901516286804e2842eb712e854fa24899212a4999305c01b4', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "stream",
+      "run_index": 1,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 42.361,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account %s has not activated the model %s. Please activate the model service in the Ark Console. Request id: 0217901516287214e2842eb712e854fa24899212a499930469caf', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "stream",
+      "run_index": 2,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 69.939,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account %s has not activated the model %s. Please activate the model service in the Ark Console. Request id: 0217901516287624e2842eb712e854fa24899212a499930bfc1f4', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "stream",
+      "run_index": 3,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 39.663,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 0217901516288324e2842eb712e854fa24899212a499930d32056', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "stream",
+      "run_index": 4,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 39.517,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 0217901516288724e2842eb712e854fa24899212a49993062fa58', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "stream",
+      "run_index": 5,
+      "status": "success",
+      "ttft_ms": 471.53,
+      "total_ms": 30209.465,
+      "output_chars": 114
+    }
+  ],
+  "summary": {
+    "non_stream": {
+      "success": 1,
+      "failed": 4,
+      "total_mean_ms": 33420.491,
+      "total_p50_ms": 33420.491,
+      "total_p90_ms": 33420.491,
+      "ttft_mean_ms": null,
+      "ttft_p50_ms": null,
+      "ttft_p90_ms": null
+    },
+    "stream": {
+      "success": 1,
+      "failed": 4,
+      "total_mean_ms": 30209.465,
+      "total_p50_ms": 30209.465,
+      "total_p90_ms": 30209.465,
+      "ttft_mean_ms": 471.53,
+      "ttft_p50_ms": 471.53,
+      "ttft_p90_ms": 471.53
+    }
+  }
+}

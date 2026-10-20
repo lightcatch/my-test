@@ -5,7 +5,6 @@ build/
 dist/
 wheels/
 *.egg-info
-outputs
 ASR_test/audio
 voice_test/audio_bad_samples
 
@@ -87,3 +86,34 @@ runner.lock
 .env.*
 !.env.example
 !.env.sample
+
+# Completed run reports and raw results
+!/outputs/
+/outputs/**
+!/outputs/**/
+!/outputs/**/*.xlsx
+!/outputs/**/*.csv
+/outputs/测试用例/
+/outputs/rag_testcases.xlsx
+/outputs/退出对话_测试用例_200.xlsx
+
+!/ASR_test/results/
+/ASR_test/results/**
+!/ASR_test/results/**/
+!/ASR_test/results/**/*.xlsx
+
+!/model_test/outputs/
+/model_test/outputs/**
+!/model_test/outputs/**/
+!/model_test/outputs/**/*.xlsx
+!/model_test/outputs/**/*.json
+/model_test/outputs/**/_temporary/
+/model_test/outputs/**/_prompt_check/
+/model_test/outputs/_prompt_check_input.xlsx
+/model_test/outputs/**/*_running.xlsx
+
+!/nana_prompt_ab/outputs/
+/nana_prompt_ab/outputs/**
+!/nana_prompt_ab/outputs/**/
+!/nana_prompt_ab/outputs/**/report.xlsx
+!/nana_prompt_ab/outputs/**/results.jsonl

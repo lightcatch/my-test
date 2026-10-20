@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-08T11:21:16",
+  "test_model": "doubao-seed-2.1-turbo",
+  "review_model": "qwen3-max",
+  "results": [
+    {
+      "name": "speed",
+      "status": "failed",
+      "error": "RuntimeError: Speed smoke test received no successful model response. See result file: D:\\PyCode\\test\\model_test\\outputs\\model_suite\\20261008_112108\\_temporary\\01_speed.json"
+    },
+    {
+      "name": "dialog",
+      "status": "failed",
+      "error": "RuntimeError: Failed at turn=1 role=assistant after retries: Error code: 404 - {'error': {'code': 'InvalidEndpointOrModel.NotFound', 'message': 'The model or endpoint doubao-seed-2.1-turbo does not exist or you do not have access to it. Request id: 02179142967760347c8075984f4c09bb3b0ca9abced541eed640a', 'param': '', 'type': 'Not Found'}}"
+    }
+  ]
+}

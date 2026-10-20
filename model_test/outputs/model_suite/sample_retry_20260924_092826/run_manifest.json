@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-09-24T09:31:34",
+  "test_model": "doubao-seed-2-1-lite-260915",
+  "review_model": "qwen3-max",
+  "results": [
+    {
+      "name": "speed",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\sample_retry_20260924_092826\\doubao-seed-2-1-lite-260915_总表.xlsx",
+      "metadata": {
+        "combined_workbook": true
+      }
+    },
+    {
+      "name": "dialog",
+      "status": "failed",
+      "error": "RuntimeError: Failed at turn=2 role=user after retries: Error code: 401 - {'error': {'message': 'Authentication Fails, Your api key: ****f3fe is invalid', 'type': 'authentication_error', 'param': None, 'code': 'invalid_request_error'}}"
+    },
+    {
+      "name": "function_call",
+      "status": "failed",
+      "error": "KeyError: '????'"
+    },
+    {
+      "name": "latency",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\sample_retry_20260924_092826\\doubao-seed-2-1-lite-260915_总表.xlsx",
+      "metadata": {
+        "combined_workbook": true
+      }
+    },
+    {
+      "name": "score",
+      "status": "failed",
+      "error": "ValueError: Score testing requires --input or a successful dialog stage."
+    },
+    {
+      "name": "suite",
+      "status": "failed",
+      "error": "PermissionError: [WinError 32] 另一个程序正在使用此文件，进程无法访问。: 'D:\\\\PyCode\\\\test\\\\model_test\\\\outputs\\\\model_suite\\\\sample_retry_20260924_092826\\\\_temporary\\\\04_latency.xlsx'"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+﻿用例编号,用例分类,用户输入,助手完整回复,全部工具调用(JSON),是否调用play_music,play_music参数,是否同轮触发对话,用户告知判定,首包耗时(秒),总耗时(秒),总Token,错误
+M001,明确播放,播放《晴天》,,"[{""id"":""call_sghccac5bpei5zfjh3d20utk"",""type"":""function"",""function"":{""name"":""play_music"",""arguments"":""{\""song_name\"": \""晴天\"", \""song_type\"": \""\"", \""intention\"": \""\"", \""times\"": \""\""}""}}]",是,"{""song_name"": ""晴天"", ""song_type"": """", ""intention"": """", ""times"": """"}",否,未告知,1.689,2.718,2729,

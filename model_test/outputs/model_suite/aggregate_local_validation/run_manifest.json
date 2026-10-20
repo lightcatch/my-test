@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-09-24T08:47:33",
+  "test_model": "doubao-seed-2-1-lite-260915",
+  "review_model": "qwen3-max",
+  "results": [
+    {
+      "name": "speed",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\smoke_20260923_174402\\01_speed.json"
+    },
+    {
+      "name": "dialog",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\smoke_dialog2_20260923_174912\\02_dialog.xlsx"
+    },
+    {
+      "name": "function_call",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\smoke_suite_20260923_175142\\03_function_call.xlsx"
+    },
+    {
+      "name": "latency",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\smoke_suite_20260923_175142\\04_latency.xlsx"
+    },
+    {
+      "name": "score",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\smoke_suite_20260923_175142\\05_score\\02_dialog_score.xlsx"
+    }
+  ]
+}

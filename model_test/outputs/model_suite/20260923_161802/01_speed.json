@@ -1,0 +1,118 @@
+{
+  "model": "doubao-seed-2-1-lite-260915",
+  "prompt": "请用一句话介绍人工智能。",
+  "records": [
+    {
+      "mode": "non_stream",
+      "run_index": 1,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 537.175,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 021790151483862e47635ed4409d744027d1eb06218e8366203c0', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 2,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 45.391,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 021790151483911e47635ed4409d744027d1eb06218e836900431', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 3,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 44.856,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 021790151483956e47635ed4409d744027d1eb06218e8368d2e63', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 4,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 44.88,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 021790151484001e47635ed4409d744027d1eb06218e836ef9355', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "non_stream",
+      "run_index": 5,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 44.687,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 021790151484045e47635ed4409d744027d1eb06218e836587dee', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "stream",
+      "run_index": 1,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 45.342,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 021790151484091e47635ed4409d744027d1eb06218e836432eab', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "stream",
+      "run_index": 2,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 43.432,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 021790151484135e47635ed4409d744027d1eb06218e836ce11fd', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "stream",
+      "run_index": 3,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 46.668,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 021790151484179e47635ed4409d744027d1eb06218e836abb433', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "stream",
+      "run_index": 4,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 45.93,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 021790151484226e47635ed4409d744027d1eb06218e836cd5858', 'param': '', 'type': 'Not Found'}}"
+    },
+    {
+      "mode": "stream",
+      "run_index": 5,
+      "status": "failed",
+      "ttft_ms": null,
+      "total_ms": 42.566,
+      "output_chars": 0,
+      "error": "NotFoundError: Error code: 404 - {'error': {'code': 'ModelNotOpen', 'message': 'Your account 2108350806 has not activated the model doubao-seed-2-1-lite-260915. Please activate the model service in the Ark Console. Request id: 021790151484272e47635ed4409d744027d1eb06218e836311cf1', 'param': '', 'type': 'Not Found'}}"
+    }
+  ],
+  "summary": {
+    "non_stream": {
+      "success": 0,
+      "failed": 5,
+      "total_mean_ms": null,
+      "total_p50_ms": null,
+      "total_p90_ms": null,
+      "ttft_mean_ms": null,
+      "ttft_p50_ms": null,
+      "ttft_p90_ms": null
+    },
+    "stream": {
+      "success": 0,
+      "failed": 5,
+      "total_mean_ms": null,
+      "total_p50_ms": null,
+      "total_p90_ms": null,
+      "ttft_mean_ms": null,
+      "ttft_p50_ms": null,
+      "ttft_p90_ms": null
+    }
+  }
+}

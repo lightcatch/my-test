@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-08T18:34:31",
+  "test_model": "doubao-seed-2-1-lite-260915",
+  "review_model": "qwen3-max",
+  "results": [
+    {
+      "name": "speed",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\20261008_175714_doubao-seed-2-1-lite-260915\\doubao-seed-2-1-lite-260915_总表.xlsx",
+      "metadata": {
+        "combined_workbook": true
+      }
+    },
+    {
+      "name": "dialog",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\20261008_175714_doubao-seed-2-1-lite-260915\\doubao-seed-2-1-lite-260915_总表.xlsx",
+      "metadata": {
+        "combined_workbook": true
+      }
+    },
+    {
+      "name": "function_call",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\20261008_175714_doubao-seed-2-1-lite-260915\\doubao-seed-2-1-lite-260915_总表.xlsx",
+      "metadata": {
+        "combined_workbook": true
+      }
+    },
+    {
+      "name": "latency",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\20261008_175714_doubao-seed-2-1-lite-260915\\doubao-seed-2-1-lite-260915_总表.xlsx",
+      "metadata": {
+        "combined_workbook": true
+      }
+    },
+    {
+      "name": "score",
+      "status": "success",
+      "output": "D:\\PyCode\\test\\model_test\\outputs\\model_suite\\20261008_175714_doubao-seed-2-1-lite-260915\\doubao-seed-2-1-lite-260915_总表.xlsx",
+      "metadata": {
+        "combined_workbook": true
+      }
+    }
+  ]
+}
