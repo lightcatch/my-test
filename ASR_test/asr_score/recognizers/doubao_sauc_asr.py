@@ -18,6 +18,15 @@
 
 from __future__ import annotations
 
+import sys as _config_sys
+from pathlib import Path as _ConfigPath
+
+_CONFIG_ROOT = str(_ConfigPath(__file__).resolve().parents[3])
+if _CONFIG_ROOT not in _config_sys.path:
+    _config_sys.path.insert(0, _CONFIG_ROOT)
+import config11 as _local_config  # 本机密钥由 .gitignore 排除。
+
+
 import asyncio
 import gzip
 import json
@@ -32,8 +41,8 @@ import aiohttp
 from .base import BaseRecognizer, RecognitionResult
 
 
-APP_ID = "6314392664"
-ACCESS_TOKEN = "REDACTED_CREDENTIAL"
+APP_ID = _local_config.ASR_SAUC_APP_ID
+ACCESS_TOKEN = _local_config.ASR_SAUC_ACCESS_TOKEN
 RESOURCE_ID = "volc.bigasr.sauc.duration"
 MODEL_NAME = "bigmodel"
 WSS_URL = "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream"

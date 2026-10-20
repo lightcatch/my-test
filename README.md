@@ -17,7 +17,7 @@ Copy-Item config.example.py config.py
 Copy-Item config11.example.py config11.py
 ```
 
-已有本地配置时不要执行上述复制命令，以免覆盖。根目录的 `config.py`、`config11.py` 不再纳入 Git；子项目中用于提示词和运行参数的配置文件仍正常纳入 Git。旧提交中的配置内容不会因此被删除。
+已有本地配置时不要执行上述复制命令，以免覆盖。根目录的 `config.py`、`config11.py` 不纳入 Git；子项目中用于提示词和运行参数的配置文件仍正常纳入 Git。模型测试和 ASR 脚本的密钥统一从本机 `config11.py` 读取，字段见 `config11.example.py`。
 
 根据 `pyproject.toml` 和 `uv.lock` 重建 Python 环境。模型和音频需另行下载；`ASR_test/mega_asr` 是独立第三方仓库，由其上游恢复：
 

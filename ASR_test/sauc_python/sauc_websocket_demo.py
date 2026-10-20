@@ -1,3 +1,10 @@
+import sys as _config_sys
+from pathlib import Path as _ConfigPath
+
+_CONFIG_ROOT = str(_ConfigPath(__file__).resolve().parents[2])
+if _CONFIG_ROOT not in _config_sys.path:
+    _config_sys.path.insert(0, _CONFIG_ROOT)
+import config11 as _local_config  # 本机密钥由 .gitignore 排除。
 import asyncio
 import aiohttp
 import json
@@ -50,8 +57,8 @@ class Config:
     def __init__(self):
         # 填入控制台获取的app id和access token
         self.auth = {
-            "app_key": "6314392664",
-            "access_key": "REDACTED_CREDENTIAL"
+            "app_key": _local_config.ASR_WEBSOCKET_DEMO_APP_KEY,
+            "access_key": _local_config.ASR_WEBSOCKET_DEMO_ACCESS_KEY
         }
 
     @property

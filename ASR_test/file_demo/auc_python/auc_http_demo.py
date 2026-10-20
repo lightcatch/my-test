@@ -1,3 +1,10 @@
+import sys as _config_sys
+from pathlib import Path as _ConfigPath
+
+_CONFIG_ROOT = str(_ConfigPath(__file__).resolve().parents[3])
+if _CONFIG_ROOT not in _config_sys.path:
+    _config_sys.path.insert(0, _CONFIG_ROOT)
+import config11 as _local_config  # 本机密钥由 .gitignore 排除。
 import json
 import time
 import uuid
@@ -109,8 +116,8 @@ file_url = "https://ttc-advisory-oss.oss-cn-hangzhou.aliyuncs.com/lark_audio/int
 
 # 填入控制台获取的app id和access token
 # 注意事项: 新版控制台只需要 app_key 即可,不需要 access_key;老版本控制台都需要
-appid = "6314392664"
-token = "REDACTED_CREDENTIAL"
+appid = _local_config.ASR_HTTP_DEMO_APPID
+token = _local_config.ASR_HTTP_DEMO_TOKEN
 
 if __name__ == '__main__':
     main()

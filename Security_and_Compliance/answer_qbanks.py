@@ -7,6 +7,15 @@
 
 from __future__ import annotations
 
+import sys as _config_sys
+from pathlib import Path as _ConfigPath
+
+_CONFIG_ROOT = str(_ConfigPath(__file__).resolve().parents[1])
+if _CONFIG_ROOT not in _config_sys.path:
+    _config_sys.path.insert(0, _CONFIG_ROOT)
+import config11 as _local_config  # 本机密钥由 .gitignore 排除。
+
+
 import argparse
 import json
 import re
@@ -27,7 +36,7 @@ from openpyxl.utils import get_column_letter
 # 请替换为实际模型服务配置。也可以通过命令行 --model/--base-url/--api-key 临时覆盖。
 MODEL_NAME = "doubao-seed-2-0-lite-260215"
 BASE_URL = "https://46e1da5d991341c8af20e8799ce6cc63.access.llm-shield.omini-shield.com/api/v3"
-API_KEY = "REDACTED_CREDENTIAL"
+API_KEY = _local_config.DOUBAO_API_KEY
 
 # 抱枕和一宝分别使用独立的 system prompt；三个题库共享对应角色的 prompt。
 PILLOW_SYSTEM_PROMPT = """

@@ -1,5 +1,14 @@
 from __future__ import annotations
 
+import sys as _config_sys
+from pathlib import Path as _ConfigPath
+
+_CONFIG_ROOT = str(_ConfigPath(__file__).resolve().parents[1])
+if _CONFIG_ROOT not in _config_sys.path:
+    _config_sys.path.insert(0, _CONFIG_ROOT)
+import config11 as _local_config  # 本机密钥由 .gitignore 排除。
+
+
 from typing import Any
 
 
@@ -300,7 +309,7 @@ CONFIG: dict[str, Any] = {
     },
     "deepseek_user": {
         "base_url": "https://api.deepseek.com",
-        "api_key": "REDACTED_CREDENTIAL",
+        "api_key": _local_config.MODEL_TEST_DEEPSEEK_API_KEY,
         "model": "deepseek-v4-flash",
 
 
@@ -315,28 +324,28 @@ CONFIG: dict[str, Any] = {
     },
     "doubao_assistant": {
         # "base_url": "https://ark.cn-beijing.volces.com/api/v3",
-        # "api_key": "REDACTED_CREDENTIAL",
+        # "api_key": "REPLACE_WITH_LOCAL_API_KEY",
         # "model": "doubao-1-5-pro-32k-250115",
 
         "base_url": "https://ark.cn-beijing.volces.com/api/v3",
-        "api_key": "REDACTED_CREDENTIAL",
+        "api_key": _local_config.DOUBAO_API_KEY,
         "model": "doubao-seed-2-1-lite-260915",
 
         # "base_url": "https://api.deepseek.com",
-        # "api_key": "REDACTED_CREDENTIAL",
+        # "api_key": "REPLACE_WITH_LOCAL_API_KEY",
         # "model": "deepseek-v4-flash",
 
         # "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        # "api_key": "REDACTED_CREDENTIAL",
+        # "api_key": "REPLACE_WITH_LOCAL_API_KEY",
         # "model": "qwen3.6-plus",
 
         # "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        # "api_key": "REDACTED_CREDENTIAL",
+        # "api_key": "REPLACE_WITH_LOCAL_API_KEY",
         # "model": "qwen-plus",
 
 
         # "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        # "api_key": "REDACTED_CREDENTIAL",
+        # "api_key": "REPLACE_WITH_LOCAL_API_KEY",
         # "model": "qwen3.5-flash",
 
         # "base_url": "https://token-plan-cn.xiaomimimo.com/v1",

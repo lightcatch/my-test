@@ -1,4 +1,13 @@
-﻿from __future__ import annotations
+from __future__ import annotations
+
+import sys as _config_sys
+from pathlib import Path as _ConfigPath
+
+_CONFIG_ROOT = str(_ConfigPath(__file__).resolve().parents[1])
+if _CONFIG_ROOT not in _config_sys.path:
+    _config_sys.path.insert(0, _CONFIG_ROOT)
+import config11 as _local_config  # 本机密钥由 .gitignore 排除。
+
 
 import argparse
 import asyncio
@@ -43,16 +52,16 @@ if sys.platform == "win32":
 ACTIVE_PROVIDER = "doubao"
 
 # Aliyun FunASR
-ALI_API_KEY = "REDACTED_CREDENTIAL"
+ALI_API_KEY = _local_config.Ali_API_KEY
 ALI_ENDPOINT = "wss://dashscope.aliyuncs.com/api-ws/v1/inference/"
 ALI_DEFAULT_MODEL_16K = "paraformer-realtime-v1"
 ALI_DEFAULT_MODEL_8K = "fun-asr-flash-8k-realtime"
 
 # Doubao ASR v3
-DOUBAO_APP_ID = "6314392664"
-DOUBAO_ACCESS_KEY = "REDACTED_CREDENTIAL"
-# DOUBAO_API_KEY = "REDACTED_CREDENTIAL"
-# DOUBAO_APP_KEY = "REDACTED_CREDENTIAL"
+DOUBAO_APP_ID = _local_config.VOICE_DOUBAO_APP_ID
+DOUBAO_ACCESS_KEY = _local_config.VOICE_DOUBAO_ACCESS_KEY
+# DOUBAO_API_KEY = "REPLACE_WITH_LOCAL_API_KEY"
+# DOUBAO_APP_KEY = "REPLACE_WITH_LOCAL_APP_KEY"
 DOUBAO_ENDPOINT = "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel"
 DOUBAO_DEFAULT_MODEL_16K = "volc.bigasr.sauc.duration"
 DOUBAO_DEFAULT_MODEL_8K = ""
@@ -67,9 +76,9 @@ DOUBAO_READ_TIMEOUT_S = 3
 DOUBAO_RESULT_TIMEOUT_S = 40
 
 # Xunfei RTASR-LLM
-XUNFEI_APP_ID = "f8d4ff4a"
-XUNFEI_ACCESS_KEY_ID = "REDACTED_CREDENTIAL"
-XUNFEI_ACCESS_KEY_SECRET = "REDACTED_CREDENTIAL"
+XUNFEI_APP_ID = _local_config.VOICE_XUNFEI_APP_ID
+XUNFEI_ACCESS_KEY_ID = _local_config.VOICE_XUNFEI_ACCESS_KEY_ID
+XUNFEI_ACCESS_KEY_SECRET = _local_config.VOICE_XUNFEI_ACCESS_KEY_SECRET
 XUNFEI_ENDPOINT = "wss://office-api-ast-dx.iflyaisol.com/ast/communicate/v1"
 XUNFEI_DEFAULT_MODEL_16K = "rtasr-llm-16k"
 XUNFEI_DEFAULT_MODEL_8K = "rtasr-llm-8k"

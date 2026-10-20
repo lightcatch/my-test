@@ -1,3 +1,10 @@
+import sys as _config_sys
+from pathlib import Path as _ConfigPath
+
+_CONFIG_ROOT = str(_ConfigPath(__file__).resolve().parents[3])
+if _CONFIG_ROOT not in _config_sys.path:
+    _config_sys.path.insert(0, _CONFIG_ROOT)
+import config11 as _local_config  # 本机密钥由 .gitignore 排除。
 import argparse
 import base64
 import json
@@ -12,8 +19,8 @@ import requests
 from openpyxl import load_workbook
 
 
-APP_ID = "6314392664"
-ACCESS_TOKEN = "REDACTED_CREDENTIAL"
+APP_ID = _local_config.ASR_FLASH_DEMO_APP_ID
+ACCESS_TOKEN = _local_config.ASR_FLASH_DEMO_ACCESS_TOKEN
 RESOURCE_ID = "volc.bigasr.auc_turbo"
 MODEL_NAME = "bigmodel"
 RECOGNIZE_URL = "https://openspeech.bytedance.com/api/v3/auc/bigmodel/recognize/flash"
