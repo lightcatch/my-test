@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m py_compile RAG/functions.py)",
+      "Bash(python -m py_compile RAG/rag_function.py)",
+      "Bash(python -c \"from RAG import functions; print\\('count:', len\\(functions.ALL_FUNCTIONS\\)\\); print\\('names:', [f['function']['name'] for f in functions.ALL_FUNCTIONS]\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(uv sync *)",
+      "Bash(uv run python -c ' *)",
+      "Bash(uv run python -c 'from RAG.rag_function import load_functions, functions_to_documents *)"
+    ]
+  }
+}

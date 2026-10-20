@@ -1,0 +1,33 @@
+[
+  {
+    "id": "laya_multilingual",
+    "name": "Laya Multilingual",
+    "backend": "laya_agent",
+    "path": "../laya_model/multilingual"
+  },
+  {
+    "id": "laya_typed_decisions",
+    "name": "Laya Typed Decisions",
+    "backend": "laya_agent",
+    "path": "../laya_model/typed-decisions"
+  },
+  {
+    "id": "laya_english",
+    "name": "Laya English",
+    "backend": "laya_agent",
+    "path": "../laya_model"
+  },
+  {
+    "id": "open_jev",
+    "name": "Open JEV DeBERTa",
+    "backend": "open_jev",
+    "path": "../model"
+  },
+  {
+    "id": "jev_9b",
+    "name": "JEV-9B (vLLM HTTP)",
+    "backend": "jev_vl_http",
+    "path": "../jev9b_model",
+    "endpoint": "http://127.0.0.1:8000/v1/decide"
+  }
+]

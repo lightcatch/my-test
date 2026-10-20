@@ -1,0 +1,110 @@
+# Cline / Cursor AI 项目工作规则
+
+本文件是给 AI 助手（Cline / Cursor / 其它 agent）看的持久化项目规则。
+每次新会话开始时 AI 会自动读取本文件。
+
+**语言**：与用户交流用**简体中文**，代码注释、docstring、README 也用中文（除非用户明确要求英文）。
+
+---
+
+## 1. 终端命令执行
+
+### 1.1 长任务（跑批 / 训练 / 下载模型等 > 30 秒）
+**不要直接把 stdout 打回终端**。这会导致：
+- 中文经过 GBK/UTF-8 编码往返变慢，卡顿严重
+- 输出被上下游终端反复重放（历史 shell 缓冲堆积）
+- 有些日志一次几千行，token 消耗巨大
+
+**正确做法**（Windows PowerShell）：
+```powershell
+Start-Process -FilePath "python.exe" -ArgumentList "-X utf8", "path\to\script.py" `
+    -RedirectStandardOutput "logs\run.log" -RedirectStandardError "logs\err.log" `
+    -NoNewWindow -PassThru
+```
+然后另一条命令 poll 日志尾部：
+```powershell
+Get-Content logs\run.log -Tail 30
+```
+
+或者更简单：
+```powershell
+python -X utf8 script.py > logs\run.log 2>&1
+Get-Content logs\run.log -Tail 30
+```
+
+### 1.2 短命令
+- 每条命令末尾加 `; exit`（让 PowerShell 会话主动关闭）
+- 或者用 `powershell -NoProfile -Command "..."` 一行式，不进交互 shell
+- 命令输出用 `| Select-Object -Last 30` 或 `-First 30` 限制行数
+- 全局环境：`chcp 65001` 或加 `-X utf8`，避免中文乱码
+
+### 1.3 execute_command 参数
+- 简单读文件、看目录：`requires_approval: false`
+- 涉及删除、跑批、装依赖、连外网 API：`requires_approval: true`
+- 长任务估计超过 2 分钟：先 `ask_followup_question` 让用户确认预算/花费
+
+---
+
+## 2. Python 环境（本项目独有）
+
+项目用 **uv 管理**，有多个 venv：
+
+| venv 路径 | 用途 |
+|---|---|
+| `d:\PyCode\test\.venv` | 项目根，主环境，含 transformers 5.6, torch 2.10 |
+| `ASR_test\mega_asr\.venv` | Mega-ASR（Qwen3-ASR + LoRA） |
+| `ASR_test\fire_red_asr\.venv` | FireRedASR2-AED |
+| `ASR_test\sense_voice_onnx\.venv` | SenseVoice ONNX INT8（sherpa-onnx） |
+
+安装依赖用 `uv pip install --python <venv 的 python.exe>`，不要用 `pip install`。
+
+---
+
+## 3. 项目目录约定
+
+- 数据集：`downloaded_audio\integrated_dialects\`（15 个方言/噪声子集，每个 wav + metadata.csv + xx_映射表.xlsx 三件套，16kHz mono）
+- 打分结果：`downloaded_audio\integrated_dialects\打分结果\<ASR_display_name>\`
+- 每个 ASR 目录里必有 `_summary.csv`（含 name, language, total, success, avg_cer, elapsed_sec, out_path 七列）
+- **总表**：`打分结果\总表.xlsx`（`build_overall_summary.py` 生成）
+- **速度对比**：`打分结果\速度对比.xlsx`（`build_speed_summary.py` 生成）
+- **打分指南**：`ASR_test\asr_score\README.md`
+
+## 4. ASR 阵容（截至 2026-07）
+
+已接入 8 个 ASR（`ASR_test\asr_score\recognizers\` 目录下 8 个 recognizer）：
+1. mega_asr（本地 GPU）
+2. fire_red_asr / fire_red_asr_fp16（本地 GPU，从 ModelScope FireRedTeam/FireRedASR2-AED 下的，1.18B FP32 权重）
+3. glm_asr（本地 GPU）
+4. ark_asr（本地 GPU，AutoArk-AI/ARK-ASR-0.6B）
+5. sense_voice_onnx（CPU INT8，sherpa-onnx，最快本地）
+6. fire_red_asr2_int8（FireRedASR2 ONNX 量化版）
+7. doubao_asr（豆包 AUC Flash HTTP，云端）
+8. doubao_sauc_asr（豆包 SAUC WebSocket nostream，云端）
+
+粤语场景 fire_red / ARK / SenseVoice / doubao 输出简体，需要用 `recompute_with_opencc.py` 做 s2t 修正后再算 CER。
+
+---
+
+## 5. 沟通习惯
+
+- **保持直接**：不用冗长开场白，直接说结论 + 数据
+- **量化用数字**：CER、耗时、参数量都要给具体数字
+- **不确定就说不确定**：不知道就说不知道，别猜
+- **成本敏感**：调用云端 API / 下载模型前，先估花费和时间，让用户确认
+- **失败早停**：连续 2 次尝试都不通，停下来重新想方案，不要机械重试
+
+---
+
+## 6. 常见坑（历史遗留）
+
+| 坑 | 处理 |
+|---|---|
+| wav 采样率不是 16kHz | 跑 `resample_to_16k.py` |
+| Windows PowerShell GBK 乱码 | 加 `-X utf8` 或 `chcp 65001` |
+| `_summary.csv` 二次合并变空 | 已修，`merge_summary.py` 会把现有 `_summary.csv` 也读进来 |
+| 火山引擎接口 45000030 权限失败 | auc_turbo 配额用完，切 SAUC nostream |
+| PowerShell `&&` 语法错误 | 拆成两条 `execute_command`, 或用 `;` 分隔 |
+
+---
+
+_本文件由 AI 助手在 2026-07-03 与用户沟通后生成，用户后续可以直接编辑本文件调整规则。_

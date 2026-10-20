@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python ./RAG/rag_function.py -chat)",
+      "Bash(ls -la \"C:/Users/Administrator/.cache/huggingface/hub/\" 2>&1 | head -30)",
+      "Read(//c/Users/Administrator/.cache/huggingface/hub/**)",
+      "Bash(python -m RAG.rag_function dump)",
+      "Bash(.venv/Scripts/python.exe *)",
+      "Bash(curl:*)",
+      "Bash(pip install:*)",
+      "Bash(git clone:*)",
+      "Bash(huggingface-cli:*)",
+      "Bash(hf:*)",
+      "Bash(../../sense_voice_onnx/.venv/Scripts/python.exe -)"
+    ]
+  }
+}

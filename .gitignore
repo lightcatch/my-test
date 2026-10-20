@@ -11,3 +11,79 @@ voice_test/audio_bad_samples
 
 # Virtual environments
 .venv
+
+# Repository size: local environments and generated resources
+**/.venv*/
+**/*_venv/
+**/venv/
+**/node_modules/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+**/.cache/
+**/.parquet_cache/
+**/.ipynb_checkpoints/
+**/__MACOSX/
+.DS_Store
+Thumbs.db
+
+# Downloaded models and checkpoints (download scripts stay tracked)
+/jev_test/model/
+/jev_test/jev9b_model/
+/jev_test/laya_model/
+/ASR_test/fire_red_asr/pretrained_models/
+/ASR_test/mega_asr/ckpt/
+# Independent third-party Git checkout; restore from its upstream repository.
+/ASR_test/mega_asr/
+/ASR_test/sense_voice_onnx/model/
+*.safetensors
+*.onnx
+*.onnx.data
+*.pt
+*.pth
+*.pth.tar
+*.ckpt
+*.gguf
+*.tflite
+*.h5
+pytorch_model*.bin
+model-*-of-*.bin
+*.range
+*.partial
+*.crdownload
+*.incomplete
+
+# Generated audio, results, vector stores, and temporary files
+/downloaded_audio/
+outputs/
+/ASR_test/results/
+/voice_test/audio_samples/
+/voice_test/vad_audio/
+/voice_test/audio_bad_samples/
+/ASR_test/audio/
+/ASR_test/fire_red_asr2_onnx/output/
+/ASR_test/fire_red_asr2_onnx/outputs/
+/data/chroma*/
+/RAG/data/chroma*/
+**/_tmp_artifacts/
+**/backups/
+*.log
+*.bak
+*.tmp
+.runner.lock
+runner.lock
+
+# Archives, distributions, and local secrets
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+.webui_secret_key
+/config.py
+/config11.py
+.env
+.env.*
+!.env.example
+!.env.sample

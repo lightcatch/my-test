@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SVG IV Mixing Demo</title>
+    <style>
+      :root {
+        --bg-top: #f5fbff;
+        --bg-mid: #d8eaff;
+        --bg-bottom: #c7defa;
+        --panel: rgba(255, 255, 255, 0.68);
+        --panel-border: rgba(255, 255, 255, 0.72);
+        --ink: #5b7fa6;
+        --muted: #7e9fbe;
+        --green-a: #d8f7a5;
+        --green-b: #a4dd6b;
+        --blue-a: #c8e4ff;
+        --blue-b: #7fb5f3;
+        --tube-green-a: #dbf8af;
+        --tube-green-b: #8dcb57;
+        --tube-blue-a: #d7ecff;
+        --tube-blue-b: #6daff4;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Avenir Next", "Segoe UI Variable", "Trebuchet MS", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 20% 12%, rgba(255, 255, 255, 0.95), transparent 28%),
+          radial-gradient(circle at 86% 12%, rgba(255, 255, 255, 0.85), transparent 22%),
+          radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.65), transparent 30%),
+          linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 52%, var(--bg-bottom) 100%);
+      }
+
+      .page {
+        width: min(1180px, calc(100vw - 28px));
+        margin: 20px auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 310px;
+        gap: 20px;
+        align-items: start;
+      }
+
+      .scene-card,
+      .controls {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 28px;
+        backdrop-filter: blur(12px);
+        box-shadow:
+          0 26px 70px rgba(92, 128, 171, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.75);
+      }
+
+      .scene-card {
+        padding: 18px;
+      }
+
+      .controls {
+        padding: 22px 20px;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 28px;
+        letter-spacing: 0.04em;
+        color: #6287b0;
+      }
+
+      p {
+        margin: 0;
+        line-height: 1.6;
+      }
+
+      .lede {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .ranges {
+        margin-top: 22px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .range-row {
+        padding: 14px 14px 12px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.54);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.9),
+          0 12px 24px rgba(112, 146, 186, 0.12);
+      }
+
+      .range-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 8px;
+        gap: 12px;
+      }
+
+      .range-head strong {
+        font-size: 18px;
+        letter-spacing: 0.04em;
+      }
+
+      .range-head span {
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        accent-color: #7bb1f1;
+      }
+
+      .notes {
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(114, 146, 183, 0.18);
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .notes code {
+        font-family: "Consolas", "SFMono-Regular", monospace;
+        color: #5f8bbc;
+      }
+
+      svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .bag-text {
+        font-size: 16px;
+        font-weight: 600;
+        fill: #6d8fb2;
+        letter-spacing: 0.04em;
+      }
+
+      .bag-readout {
+        font-size: 11px;
+        font-weight: 600;
+        fill: #7394b5;
+      }
+
+      .scale-number,
+      .scale-mark {
+        fill: #6e8fb0;
+        stroke: #6e8fb0;
+        opacity: 0.86;
+      }
+
+      .tube-base {
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: url(#tubeShadow);
+      }
+
+      .tube-overlay {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.34);
+        stroke-width: 4.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 10 24;
+        animation: flow 2.8s linear infinite;
+        mix-blend-mode: screen;
+      }
+
+      .flow-reverse {
+        animation-direction: reverse;
+      }
+
+      .liquid-fill {
+        transition: y 0.35s ease, height 0.35s ease;
+      }
+
+      .liquid-surface {
+        transition: cy 0.35s ease;
+        animation: drift 4.5s ease-in-out infinite;
+      }
+
+      .label-pill {
+        filter: url(#softShadow);
+      }
+
+      .floaty {
+        animation: hover 6s ease-in-out infinite;
+        transform-origin: center;
+        transform-box: fill-box;
+      }
+
+      .pulse {
+        animation: pulse 3.2s ease-in-out infinite;
+        transform-origin: center;
+        transform-box: fill-box;
+      }
+
+      @keyframes flow {
+        to {
+          stroke-dashoffset: -76;
+        }
+      }
+
+      @keyframes hover {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+
+      @keyframes drift {
+        0%,
+        100% {
+          transform: translateX(-4px);
+        }
+        50% {
+          transform: translateX(4px);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.03);
+        }
+      }
+
+      @media (max-width: 980px) {
+        .page {
+          grid-template-columns: 1fr;
+        }
+
+        .controls {
+          order: -1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="scene-card">
+        <svg viewBox="0 0 980 1300" aria-labelledby="title desc" role="img">
+          <title id="title">SVG IV Mixing Illustration</title>
+          <desc id="desc">
+            Three IV bags feeding a central valve with animated tubes and adjustable liquid levels.
+          </desc>
+          <defs>
+            <linearGradient id="shellGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.92" />
+              <stop offset="35%" stop-color="#f5faff" stop-opacity="0.78" />
+              <stop offset="100%" stop-color="#cee1f6" stop-opacity="0.56" />
+            </linearGradient>
+
+            <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.58" />
+              <stop offset="55%" stop-color="#ffffff" stop-opacity="0.18" />
+              <stop offset="100%" stop-color="#b6d0ed" stop-opacity="0.26" />
+            </linearGradient>
+
+            <linearGradient id="greenLiquid" x1="0%" y1="0%" x2="100%" y2="10%">
+              <stop offset="0%" stop-color="#e4f6bf" />
+              <stop offset="42%" stop-color="#c7e79b" />
+              <stop offset="100%" stop-color="#aed47b" />
+            </linearGradient>
+
+            <linearGradient id="blueLiquid" x1="0%" y1="0%" x2="100%" y2="10%">
+              <stop offset="0%" stop-color="#d8e8fc" />
+              <stop offset="45%" stop-color="#adcaf0" />
+              <stop offset="100%" stop-color="#89b2e0" />
+            </linearGradient>
+
+            <linearGradient id="tubeGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#eef9d1" />
+              <stop offset="46%" stop-color="#c5e78a" />
+              <stop offset="100%" stop-color="#95ca56" />
+            </linearGradient>
+
+            <linearGradient id="tubeBlue" gradientUnits="userSpaceOnUse" x1="0" y1="520" x2="0" y2="1230">
+              <stop offset="0%" stop-color="#e6f1ff" />
+              <stop offset="40%" stop-color="#a9cff6" />
+              <stop offset="100%" stop-color="#72ace8" />
+            </linearGradient>
+
+            <linearGradient id="metalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" />
+              <stop offset="50%" stop-color="#edf3fb" />
+              <stop offset="100%" stop-color="#d7e1ef" />
+            </linearGradient>
+
+            <radialGradient id="innerBlueGlow" cx="50%" cy="45%" r="65%">
+              <stop offset="0%" stop-color="#dfefff" />
+              <stop offset="58%" stop-color="#91c7fb" />
+              <stop offset="100%" stop-color="#73aeea" />
+            </radialGradient>
+
+            <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#7fa3cc" flood-opacity="0.2" />
+            </filter>
+
+            <filter id="tubeShadow" filterUnits="userSpaceOnUse" x="-80" y="-80" width="1140" height="1460">
+              <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#7ca4cf" flood-opacity="0.24" />
+            </filter>
+
+            <filter id="innerShadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feOffset dx="0" dy="2" />
+              <feGaussianBlur stdDeviation="6" result="offset-blur" />
+              <feComposite in="SourceGraphic" in2="offset-blur" operator="arithmetic" k2="-1" k3="1" />
+            </filter>
+
+            <path
+              id="bagOuter"
+              d="M94 118
+                 C94 94 113 74 137 74
+                 H203
+                 C211 74 217 69 220 62
+                 C225 52 234 46 244 46
+                 C254 46 263 52 268 62
+                 C271 69 277 74 285 74
+                 H351
+                 C375 74 394 94 394 118
+                 V438
+                 C394 463 379 482 357 490
+                 C346 494 338 505 338 518
+                 V546
+                 H307
+                 V516
+                 H278
+                 V548
+                 H252
+                 V516
+                 H236
+                 V548
+                 H210
+                 V516
+                 H181
+                 V546
+                 H150
+                 V518
+                 C150 505 142 494 131 490
+                 C109 482 94 463 94 438
+                 Z"
+            />
+
+            <path
+              id="bagFluid"
+              d="M122 134
+                 C122 117 136 103 153 103
+                 H335
+                 C352 103 366 117 366 134
+                 V425
+                 C366 443 356 458 340 467
+                 C328 474 320 487 320 501
+                 V516
+                 H168
+                 V501
+                 C168 487 160 474 148 467
+                 C132 458 122 443 122 425
+                 Z"
+            />
+          </defs>
+
+          <g opacity="0.38">
+            <circle cx="170" cy="160" r="84" fill="white" />
+            <circle cx="820" cy="205" r="66" fill="white" />
+            <circle cx="742" cy="1085" r="88" fill="white" />
+          </g>
+
+          <g transform="translate(0 10)">
+            <g class="floaty" transform="translate(0 0)">
+              <rect class="label-pill" x="173" y="18" width="142" height="54" rx="16" fill="url(#metalGradient)" />
+              <text class="bag-text" x="244" y="53" text-anchor="middle">CA1</text>
+              <line x1="244" y1="72" x2="244" y2="104" stroke="rgba(255,255,255,0.72)" stroke-width="4" stroke-linecap="round" />
+
+              <path d="M150 90 h188" stroke="rgba(255,255,255,0.48)" stroke-width="8" stroke-linecap="round" />
+              <use href="#bagOuter" x="0" y="0" fill="url(#shellGradient)" stroke="rgba(255,255,255,0.72)" stroke-width="2.2" filter="url(#softShadow)" />
+              <use href="#bagOuter" x="0" y="0" fill="url(#glassGradient)" opacity="0.9" />
+              <path d="M162 110 C176 102 190 102 204 110 C217 117 225 117 239 110 C253 102 267 102 280 110 C294 117 303 117 316 110 C330 102 344 102 358 110" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="12" stroke-linecap="round" />
+
+              <clipPath id="clip-ca1">
+                <use href="#bagFluid" x="0" y="0" />
+              </clipPath>
+              <g clip-path="url(#clip-ca1)">
+                <rect data-fill="ca1" class="liquid-fill" x="118" y="215" width="252" height="301" rx="28" fill="url(#greenLiquid)" />
+                <ellipse data-surface="ca1" class="liquid-surface" cx="244" cy="215" rx="104" ry="13" fill="rgba(255,255,255,0.28)" />
+                <ellipse cx="170" cy="314" rx="25" ry="172" fill="rgba(255,255,255,0.18)" />
+              </g>
+
+              <use href="#bagFluid" x="0" y="0" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="2" />
+
+              <g>
+                <text class="scale-number" x="308" y="172">1000</text>
+                <text class="scale-number" x="308" y="254">800</text>
+                <text class="scale-number" x="308" y="336">600</text>
+                <text class="scale-number" x="308" y="418">400</text>
+                <text class="scale-number" x="308" y="500">200</text>
+
+                <line class="scale-mark" x1="350" y1="160" x2="360" y2="160" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="202" x2="364" y2="202" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="242" x2="360" y2="242" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="284" x2="364" y2="284" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="324" x2="360" y2="324" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="366" x2="364" y2="366" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="406" x2="360" y2="406" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="448" x2="364" y2="448" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="488" x2="360" y2="488" stroke-width="2" />
+              </g>
+
+              <text data-readout="ca1" class="bag-readout" x="244" y="568" text-anchor="middle">780 mL</text>
+            </g>
+
+            <g transform="translate(300 0)">
+              <rect class="label-pill" x="173" y="18" width="142" height="54" rx="16" fill="url(#metalGradient)" />
+              <text class="bag-text" x="244" y="53" text-anchor="middle">NaCl</text>
+              <line x1="244" y1="72" x2="244" y2="104" stroke="rgba(255,255,255,0.72)" stroke-width="4" stroke-linecap="round" />
+
+              <path d="M150 90 h188" stroke="rgba(255,255,255,0.48)" stroke-width="8" stroke-linecap="round" />
+              <use href="#bagOuter" x="0" y="0" fill="url(#shellGradient)" stroke="rgba(255,255,255,0.72)" stroke-width="2.2" filter="url(#softShadow)" />
+              <use href="#bagOuter" x="0" y="0" fill="url(#glassGradient)" opacity="0.9" />
+              <path d="M162 110 C176 102 190 102 204 110 C217 117 225 117 239 110 C253 102 267 102 280 110 C294 117 303 117 316 110 C330 102 344 102 358 110" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="12" stroke-linecap="round" />
+
+              <clipPath id="clip-nacl">
+                <use href="#bagFluid" x="0" y="0" />
+              </clipPath>
+              <g clip-path="url(#clip-nacl)">
+                <rect data-fill="nacl" class="liquid-fill" x="118" y="274" width="252" height="242" rx="28" fill="url(#blueLiquid)" />
+                <ellipse data-surface="nacl" class="liquid-surface" cx="244" cy="274" rx="104" ry="13" fill="rgba(255,255,255,0.28)" />
+                <ellipse cx="170" cy="314" rx="25" ry="172" fill="rgba(255,255,255,0.16)" />
+              </g>
+
+              <use href="#bagFluid" x="0" y="0" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="2" />
+
+              <g>
+                <text class="scale-number" x="308" y="172">1000</text>
+                <text class="scale-number" x="308" y="254">800</text>
+                <text class="scale-number" x="308" y="336">600</text>
+                <text class="scale-number" x="308" y="418">400</text>
+                <text class="scale-number" x="308" y="500">200</text>
+
+                <line class="scale-mark" x1="350" y1="160" x2="360" y2="160" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="202" x2="364" y2="202" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="242" x2="360" y2="242" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="284" x2="364" y2="284" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="324" x2="360" y2="324" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="366" x2="364" y2="366" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="406" x2="360" y2="406" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="448" x2="364" y2="448" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="488" x2="360" y2="488" stroke-width="2" />
+              </g>
+
+              <text data-readout="nacl" class="bag-readout" x="244" y="568" text-anchor="middle">620 mL</text>
+            </g>
+
+            <g transform="translate(600 0)">
+              <rect class="label-pill" x="173" y="18" width="142" height="54" rx="16" fill="url(#metalGradient)" />
+              <text class="bag-text" x="244" y="53" text-anchor="middle">CA2</text>
+              <line x1="244" y1="72" x2="244" y2="104" stroke="rgba(255,255,255,0.72)" stroke-width="4" stroke-linecap="round" />
+
+              <path d="M150 90 h188" stroke="rgba(255,255,255,0.48)" stroke-width="8" stroke-linecap="round" />
+              <use href="#bagOuter" x="0" y="0" fill="url(#shellGradient)" stroke="rgba(255,255,255,0.72)" stroke-width="2.2" filter="url(#softShadow)" />
+              <use href="#bagOuter" x="0" y="0" fill="url(#glassGradient)" opacity="0.9" />
+              <path d="M162 110 C176 102 190 102 204 110 C217 117 225 117 239 110 C253 102 267 102 280 110 C294 117 303 117 316 110 C330 102 344 102 358 110" fill="none" stroke="rgba(255,255,255,0.58)" stroke-width="12" stroke-linecap="round" />
+
+              <clipPath id="clip-ca2">
+                <use href="#bagFluid" x="0" y="0" />
+              </clipPath>
+              <g clip-path="url(#clip-ca2)">
+                <rect data-fill="ca2" class="liquid-fill" x="118" y="205" width="252" height="311" rx="28" fill="url(#greenLiquid)" />
+                <ellipse data-surface="ca2" class="liquid-surface" cx="244" cy="205" rx="104" ry="13" fill="rgba(255,255,255,0.28)" />
+                <ellipse cx="170" cy="314" rx="25" ry="172" fill="rgba(255,255,255,0.18)" />
+              </g>
+
+              <use href="#bagFluid" x="0" y="0" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="2" />
+
+              <g>
+                <text class="scale-number" x="308" y="172">1000</text>
+                <text class="scale-number" x="308" y="254">800</text>
+                <text class="scale-number" x="308" y="336">600</text>
+                <text class="scale-number" x="308" y="418">400</text>
+                <text class="scale-number" x="308" y="500">200</text>
+
+                <line class="scale-mark" x1="350" y1="160" x2="360" y2="160" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="202" x2="364" y2="202" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="242" x2="360" y2="242" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="284" x2="364" y2="284" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="324" x2="360" y2="324" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="366" x2="364" y2="366" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="406" x2="360" y2="406" stroke-width="2" />
+                <line class="scale-mark" x1="350" y1="448" x2="364" y2="448" stroke-width="1.8" />
+                <line class="scale-mark" x1="350" y1="488" x2="360" y2="488" stroke-width="2" />
+              </g>
+
+              <text data-readout="ca2" class="bag-readout" x="244" y="568" text-anchor="middle">810 mL</text>
+            </g>
+          </g>
+
+          <g>
+            <path class="tube-base" d="M248 550 C248 686 322 798 500 798" stroke="url(#tubeGreen)" stroke-width="20" />
+            <path class="tube-overlay" d="M248 550 C248 686 322 798 500 798" />
+
+            <path class="tube-base" d="M544 550 L544 752" stroke="url(#tubeBlue)" stroke-width="20" />
+            <path class="tube-overlay flow-reverse" d="M544 550 L544 752" />
+
+            <path class="tube-base" d="M848 550 C848 686 766 798 588 798" stroke="url(#tubeGreen)" stroke-width="20" />
+            <path class="tube-overlay" d="M848 550 C848 686 766 798 588 798" />
+
+            <path class="tube-base" d="M544 844 L544 1034" stroke="url(#tubeBlue)" stroke-width="18" />
+            <path class="tube-overlay flow-reverse" d="M544 844 L544 1034" />
+
+            <path class="tube-base" d="M188 1230 V1048" stroke="url(#tubeBlue)" stroke-width="18" />
+            <path class="tube-overlay flow-reverse" d="M188 1230 V1048" />
+
+            <path class="tube-base" d="M188 992 C188 870 254 822 314 822 C352 822 374 858 374 958" stroke="url(#tubeBlue)" stroke-width="18" />
+            <path class="tube-overlay flow-reverse" d="M188 992 C188 870 254 822 314 822 C352 822 374 858 374 958" />
+
+            <path class="tube-base" d="M374 1036 C374 1074 390 1100 420 1110" stroke="url(#tubeBlue)" stroke-width="18" />
+            <path class="tube-overlay flow-reverse" d="M374 1036 C374 1074 390 1100 420 1110" />
+          </g>
+
+          <g>
+            <rect x="198" y="505" width="22" height="25" rx="4" fill="url(#metalGradient)" filter="url(#softShadow)" />
+            <rect x="268" y="505" width="22" height="25" rx="4" fill="url(#metalGradient)" filter="url(#softShadow)" />
+            <rect x="500" y="505" width="22" height="25" rx="4" fill="url(#metalGradient)" filter="url(#softShadow)" />
+            <rect x="570" y="505" width="22" height="25" rx="4" fill="url(#metalGradient)" filter="url(#softShadow)" />
+            <rect x="798" y="505" width="22" height="25" rx="4" fill="url(#metalGradient)" filter="url(#softShadow)" />
+            <rect x="868" y="505" width="22" height="25" rx="4" fill="url(#metalGradient)" filter="url(#softShadow)" />
+
+            <rect x="228" y="530" width="40" height="20" rx="4" fill="url(#metalGradient)" filter="url(#softShadow)" />
+            <rect x="524" y="530" width="40" height="20" rx="4" fill="url(#metalGradient)" filter="url(#softShadow)" />
+            <rect x="828" y="530" width="40" height="20" rx="4" fill="url(#metalGradient)" filter="url(#softShadow)" />
+          </g>
+
+          <g transform="translate(544 798)">
+            <g class="pulse">
+              <circle r="58" fill="url(#metalGradient)" filter="url(#softShadow)" />
+              <circle r="48" fill="none" stroke="rgba(131,173,217,0.38)" stroke-width="2" />
+              <circle r="26" fill="rgba(255,255,255,0.9)" stroke="rgba(135,177,219,0.3)" stroke-width="2" />
+              <g fill="#d5e8fb" stroke="#86b4e1" stroke-width="1.4">
+                <circle cx="0" cy="-42" r="6" />
+                <circle cx="29" cy="-30" r="6" />
+                <circle cx="42" cy="0" r="6" />
+                <circle cx="29" cy="30" r="6" />
+                <circle cx="0" cy="42" r="6" />
+                <circle cx="-29" cy="30" r="6" />
+                <circle cx="-42" cy="0" r="6" />
+                <circle cx="-29" cy="-30" r="6" />
+              </g>
+            </g>
+          </g>
+
+          <g filter="url(#softShadow)">
+            <rect x="145" y="992" width="86" height="58" rx="14" fill="url(#metalGradient)" />
+            <rect x="332" y="958" width="78" height="78" rx="14" fill="url(#metalGradient)" />
+            <rect x="145" y="1118" width="86" height="70" rx="16" fill="url(#metalGradient)" />
+            <path d="M187 1140 v26 M174 1153 h26" stroke="#87b5e0" stroke-width="5" stroke-linecap="round" />
+          </g>
+
+          <g transform="translate(544 1154)" filter="url(#softShadow)">
+            <g class="pulse">
+              <circle r="132" fill="url(#metalGradient)" />
+              <circle r="118" fill="none" stroke="rgba(133,171,212,0.42)" stroke-width="2" />
+              <circle r="86" fill="rgba(255,255,255,0.66)" stroke="rgba(150,183,220,0.38)" stroke-width="2" />
+              <g>
+                <circle cx="0" cy="-52" r="26" fill="rgba(255,255,255,0.82)" stroke="rgba(141,176,213,0.38)" stroke-width="2" />
+                <circle cx="-52" cy="-16" r="28" fill="url(#innerBlueGlow)" stroke="rgba(145,180,219,0.4)" stroke-width="2" />
+                <circle cx="52" cy="-16" r="28" fill="url(#innerBlueGlow)" stroke="rgba(145,180,219,0.4)" stroke-width="2" />
+                <circle cx="-54" cy="54" r="26" fill="rgba(255,255,255,0.82)" stroke="rgba(141,176,213,0.38)" stroke-width="2" />
+                <circle cx="52" cy="54" r="26" fill="rgba(255,255,255,0.82)" stroke="rgba(141,176,213,0.38)" stroke-width="2" />
+                <circle cx="0" cy="72" r="26" fill="url(#innerBlueGlow)" stroke="rgba(145,180,219,0.4)" stroke-width="2" />
+
+                <circle cx="0" cy="0" r="10" fill="#d9ebfb" stroke="#85b4e2" stroke-width="1.6" />
+                <circle cx="-20" cy="16" r="10" fill="#d9ebfb" stroke="#85b4e2" stroke-width="1.6" />
+                <circle cx="20" cy="16" r="10" fill="#d9ebfb" stroke="#85b4e2" stroke-width="1.6" />
+                <circle cx="0" cy="34" r="10" fill="#d9ebfb" stroke="#85b4e2" stroke-width="1.6" />
+                <circle cx="0" cy="-20" r="10" fill="#d9ebfb" stroke="#85b4e2" stroke-width="1.6" />
+              </g>
+              <g fill="#e8f3ff" stroke="#85b4e2" stroke-width="1.4">
+                <circle cx="-52" cy="-16" r="8" />
+                <circle cx="52" cy="-16" r="8" />
+                <circle cx="0" cy="72" r="8" />
+                <circle cx="0" cy="-52" r="8" />
+                <circle cx="-54" cy="54" r="8" />
+                <circle cx="52" cy="54" r="8" />
+              </g>
+            </g>
+          </g>
+
+          <g opacity="0.46" fill="white">
+            <ellipse cx="504" cy="728" rx="20" ry="10" />
+            <ellipse cx="590" cy="1114" rx="46" ry="12" />
+            <ellipse cx="304" cy="226" rx="34" ry="8" />
+          </g>
+        </svg>
+      </section>
+
+      <aside class="controls">
+        <h1>SVG IV Demo</h1>
+        <p class="lede">
+          A front-end sketch of the medical illustration style we discussed: SVG for the structure,
+          gradients for the soft plastic look, and tiny JS hooks for level changes.
+        </p>
+
+        <div class="ranges">
+          <label class="range-row">
+            <div class="range-head">
+              <strong>CA1</strong>
+              <span data-panel-value="ca1">780 mL</span>
+            </div>
+            <input data-slider="ca1" type="range" min="10" max="100" value="78" />
+          </label>
+
+          <label class="range-row">
+            <div class="range-head">
+              <strong>NaCl</strong>
+              <span data-panel-value="nacl">620 mL</span>
+            </div>
+            <input data-slider="nacl" type="range" min="10" max="100" value="62" />
+          </label>
+
+          <label class="range-row">
+            <div class="range-head">
+              <strong>CA2</strong>
+              <span data-panel-value="ca2">810 mL</span>
+            </div>
+            <input data-slider="ca2" type="range" min="10" max="100" value="81" />
+          </label>
+        </div>
+
+        <div class="notes">
+          Open <code>docs/iv-mixing-demo.html</code> directly in a browser.
+          If you later move this into React or Vue, keep the SVG paths and wire only the
+          liquid height, labels, and animation state to component props.
+        </div>
+      </aside>
+    </main>
+
+    <script>
+      const bagModel = {
+        ca1: { bottom: 516, maxHeight: 330 },
+        nacl: { bottom: 516, maxHeight: 330 },
+        ca2: { bottom: 516, maxHeight: 330 }
+      };
+
+      function setBagLevel(key, value) {
+        const fill = document.querySelector(`[data-fill="${key}"]`);
+        const surface = document.querySelector(`[data-surface="${key}"]`);
+        const readout = document.querySelector(`[data-readout="${key}"]`);
+        const panelValue = document.querySelector(`[data-panel-value="${key}"]`);
+        const { bottom, maxHeight } = bagModel[key];
+        const height = Math.max(36, (value / 100) * maxHeight);
+        const y = bottom - height;
+        const ml = Math.round(value * 10);
+
+        fill.setAttribute("y", y.toFixed(1));
+        fill.setAttribute("height", height.toFixed(1));
+        surface.setAttribute("cy", y.toFixed(1));
+        readout.textContent = `${ml} mL`;
+        panelValue.textContent = `${ml} mL`;
+      }
+
+      document.querySelectorAll("[data-slider]").forEach((slider) => {
+        const key = slider.dataset.slider;
+        setBagLevel(key, Number(slider.value));
+
+        slider.addEventListener("input", (event) => {
+          setBagLevel(key, Number(event.target.value));
+        });
+      });
+    </script>
+  </body>
+</html>

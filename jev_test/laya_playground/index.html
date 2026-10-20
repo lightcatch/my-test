@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laya Playground</title>
+  <style>
+    :root { color-scheme: dark; --bg: #101416; --panel: #182024; --panel-2: #202b30; --line: #344249; --text: #edf2f0; --muted: #9eadae; --accent: #7ed6b2; --danger: #ff8f83; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    header { border-bottom: 1px solid var(--line); padding: 22px clamp(18px, 4vw, 56px) 18px; display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+    h1, h2, h3, p { margin: 0; } h1 { font-size: 24px; letter-spacing: .2px; } h2 { font-size: 16px; } h3 { font-size: 14px; }
+    header p, .hint, .meta { color: var(--muted); } header p { margin-top: 4px; }
+    main { max-width: 1440px; margin: 0 auto; padding: 24px clamp(18px, 4vw, 56px) 60px; display: grid; grid-template-columns: minmax(360px, 0.95fr) minmax(360px, 1.05fr); gap: 20px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
+    label { display: block; color: var(--muted); font-size: 12px; margin: 0 0 6px; }
+    textarea, input, select { width: 100%; color: var(--text); background: #0f1518; border: 1px solid var(--line); border-radius: 5px; padding: 10px 11px; font: inherit; outline: none; }
+    textarea:focus, input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px #7ed6b222; }
+    textarea { min-height: 112px; resize: vertical; } select { min-height: 40px; }
+    .field { margin-bottom: 14px; } .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    button { border: 1px solid var(--line); border-radius: 5px; background: var(--panel-2); color: var(--text); padding: 8px 11px; font: inherit; cursor: pointer; }
+    button:hover { border-color: var(--accent); } button.primary { background: var(--accent); color: #10201a; border-color: var(--accent); font-weight: 700; padding: 10px 16px; } button.danger { color: var(--danger); }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; } .runbar { margin-top: 18px; display: flex; gap: 10px; align-items: center; }
+    .question { border: 1px solid var(--line); border-radius: 6px; padding: 13px; margin: 12px 0; background: #151d20; }
+    .question-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; } .question-title strong { color: var(--accent); }
+    .option { display: grid; grid-template-columns: minmax(90px, .34fr) 1fr auto; gap: 8px; margin: 7px 0; align-items: center; } .option button { padding: 6px 9px; }
+    .noul { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .status { min-height: 22px; color: var(--muted); } .status.error { color: var(--danger); } .status.ok { color: var(--accent); }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; } .metric { background: #101719; border: 1px solid var(--line); border-radius: 5px; padding: 10px; } .metric span { display: block; color: var(--muted); font-size: 11px; } .metric b { display: block; font-size: 18px; margin-top: 2px; }
+    .answer { border-bottom: 1px solid var(--line); padding: 14px 0; } .answer:first-child { padding-top: 2px; } .answer-title { display:flex; align-items:baseline; justify-content:space-between; gap:12px; } .answer-title strong { color:var(--accent); } .answer-value { font-size:16px; margin-top:5px; } .answer-meta { color:var(--muted); font-size:12px; }
+    .prob { display:grid; grid-template-columns:minmax(70px, .28fr) 1fr 48px; gap:8px; align-items:center; margin-top:7px; color:var(--muted); font-size:12px; } .track { height:5px; background:#29363b; border-radius:4px; overflow:hidden; } .track i { display:block; height:100%; background:var(--accent); }
+    details { margin-top:14px; } summary { color:var(--muted); cursor:pointer; margin-bottom:8px; } pre { margin: 0; white-space: pre-wrap; overflow: auto; max-height: 620px; background: #0d1214; border: 1px solid var(--line); border-radius: 5px; padding: 13px; color: #d8e6df; }
+    dialog { width: min(580px, calc(100vw - 30px)); color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 20px; } dialog::backdrop { background: #0009; }
+    @media (max-width: 900px) { main { grid-template-columns: 1fr; } header { align-items: start; flex-direction: column; } }
+    @media (max-width: 520px) { .row, .noul { grid-template-columns: 1fr; } .option { grid-template-columns: 1fr; } .metrics { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>Laya Playground</h1><p>本地模型安全等级与结构化决策测试</p></div>
+    <div class="actions"><button id="refreshModels">刷新模型</button><button id="addModel">添加本地模型</button></div>
+  </header>
+  <main>
+    <section class="panel">
+      <div class="panel-head"><h2>输入与问题</h2><span class="hint">当前请求只发送下方内容</span></div>
+      <div class="field"><label for="model">模型</label><select id="model"></select></div>
+      <div class="field"><label for="state">用户回复 / 状态文本</label><textarea id="state" placeholder="输入要交给模型判断的用户对话...">我最近晚上睡不着，睡前少看手机会有帮助吗？</textarea></div>
+      <div class="field"><label for="globalPrompt">全局提示词，可选</label><textarea id="globalPrompt" placeholder="会追加到每个问题的 instructions 前面..."></textarea></div>
+      <div class="panel-head"><h2>问题列表</h2><button id="addQuestion">添加问题</button></div>
+      <div id="questions"></div>
+      <div class="runbar"><button class="primary" id="run">运行模型</button><span class="status" id="status"></span></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>答案与延时</h2><span class="hint">GPU 会自动同步计时</span></div>
+      <div class="metrics"><div class="metric"><span>推理延时</span><b id="inferenceLatency">-</b></div><div class="metric"><span>模型加载延时</span><b id="loadLatency">-</b></div><div class="metric"><span>设备</span><b id="device">-</b></div></div>
+      <div id="resultCards" class="hint">等待运行...</div>
+      <details><summary>原始 JSON</summary><pre id="output">等待运行...</pre></details>
+    </section>
+  </main>
+  <dialog id="modelDialog">
+    <form method="dialog" id="modelForm"><div class="panel-head"><h2>添加本地模型</h2><button value="cancel">关闭</button></div>
+      <div class="field"><label for="newModelId">模型 ID</label><input id="newModelId" placeholder="my_laya_model" required></div>
+      <div class="field"><label for="newModelName">显示名称</label><input id="newModelName" placeholder="My Laya Model" required></div>
+      <div class="field"><label for="newModelBackend">适配器</label><select id="newModelBackend"><option value="laya_agent">Laya Agent</option><option value="open_jev">Open JEV</option><option value="jev_vl_http">JEV Vision HTTP</option></select></div>
+      <div class="field"><label for="newModelPath">本地模型目录</label><input id="newModelPath" placeholder="D:\\models\\my_model" required></div>
+      <div class="field" id="newModelEndpointField"><label for="newModelEndpoint">HTTP 决策 endpoint</label><input id="newModelEndpoint" value="http://127.0.0.1:8000/v1/decide" placeholder="http://127.0.0.1:8000/v1/decide"></div>
+      <div class="actions"><button class="primary" value="default">注册模型</button><span class="status" id="modelStatus"></span></div>
+    </form>
+  </dialog>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let modelEntries = [];
+    let questionEntries = [
+      { id: 'risk_level', type: 'choice', instructions: '你是禄伴的安全等级分类器。只判断当前用户消息，不回答用户问题，不参考历史、画像或风险类型。请依据风险严重程度和时间紧迫性，从 L1、L2、L3、L4 中只选择一个等级。只能输出一个等级标签，不要输出解释。', options: [
+        { label: 'L1', description: '普通闲聊、日常安排或一般健康常识，没有具体危险' },
+        { label: 'L2', description: '轻微误区、低强度生活风险或轻微异常数值；没有急症，也没有正在实施的危险行为' },
+        { label: 'L3', description: '明确可能造成伤害，涉及自行用药、危险计划、明显异常症状或试图绕过安全限制，但尚未立即危及生命' },
+        { label: 'L4', description: '正在发生或短时间内可能造成死亡、严重伤害或生命危险的紧急情况' }
+      ]},
+      { id: 'risk_type', type: 'choice', instructions: '判断当前回复的主要风险类型；没有风险时选择无风险。', options: [
+        { label: '无风险', description: '普通闲聊和日常生活话题' }, { label: '安全常识', description: '用电、燃气、交通、家庭安全或安全误区' },
+        { label: '医疗', description: '症状、受伤、药物、治疗或急救' }, { label: '危险行为', description: '自伤、他伤、酒后驾驶或计划实施的危险行为' }, { label: '异常数值', description: '血压、血糖、心率、血氧、体温等异常数值' }
+      ]}
+    ];
+    function esc(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function persistQuestionCards() {
+      document.querySelectorAll('.question').forEach((card) => {
+        const index = Number(card.dataset.index); const q = questionEntries[index]; if (!q) return;
+        q.id = card.querySelector('.q-id').value; q.type = card.querySelector('.q-type').value; q.instructions = card.querySelector('.q-instructions').value;
+        if (q.type === 'noul') { q.falseDescription = card.querySelector('.false-description').value; q.trueDescription = card.querySelector('.true-description').value; }
+        else { q.options = [...card.querySelectorAll('.option')].map((row) => ({label: row.querySelector('.option-label').value, description: row.querySelector('.option-description').value})); }
+      });
+    }
+    function renderQuestions() {
+      $('questions').innerHTML = questionEntries.map((q, qi) => `
+        <div class="question" data-index="${qi}"><div class="question-title"><strong>问题 ${qi + 1}</strong><button class="danger remove-question" type="button">删除</button></div>
+          <div class="row"><div class="field"><label>问题 ID</label><input class="q-id" value="${esc(q.id)}"></div><div class="field"><label>类型</label><select class="q-type"><option value="choice" ${q.type==='choice'?'selected':''}>choice 选项</option><option value="score" ${q.type==='score'?'selected':''}>score 等级</option><option value="noul" ${q.type==='noul'?'selected':''}>noul 是/否</option></select></div></div>
+          <div class="field"><label>Instructions</label><textarea class="q-instructions">${esc(q.instructions)}</textarea></div>
+          <div class="options">${q.type === 'noul' ? `<div class="noul"><div><label>false 描述</label><input class="false-description" value="${esc(q.falseDescription || '')}"></div><div><label>true 描述</label><input class="true-description" value="${esc(q.trueDescription || '')}"></div></div>` : q.options.map((o, oi) => `<div class="option"><input class="option-label" value="${esc(o.label)}" placeholder="标签"><input class="option-description" value="${esc(o.description)}" placeholder="选项描述"><button type="button" class="danger remove-option" data-option="${oi}">移除</button></div>`).join('')}</div>
+          ${q.type !== 'noul' ? '<button type="button" class="add-option">添加选项</button>' : ''}
+        </div>`).join('');
+      document.querySelectorAll('.q-type').forEach((element) => element.addEventListener('change', (event) => { persistQuestionCards(); const card = event.target.closest('.question'); const index = Number(card.dataset.index); questionEntries[index].type = event.target.value; if (event.target.value === 'noul') { questionEntries[index].options = []; } else if (!questionEntries[index].options.length) { questionEntries[index].options = [{label:'选项1',description:''},{label:'选项2',description:''}]; } renderQuestions(); }));
+      document.querySelectorAll('.remove-question').forEach((button) => button.addEventListener('click', (event) => { persistQuestionCards(); questionEntries.splice(Number(event.target.closest('.question').dataset.index), 1); renderQuestions(); }));
+      document.querySelectorAll('.add-option').forEach((button) => button.addEventListener('click', (event) => { persistQuestionCards(); const index = Number(event.target.closest('.question').dataset.index); questionEntries[index].options.push({label:`选项${questionEntries[index].options.length + 1}`,description:''}); renderQuestions(); }));
+      document.querySelectorAll('.remove-option').forEach((button) => button.addEventListener('click', (event) => { persistQuestionCards(); const card = event.target.closest('.question'); const index = Number(card.dataset.index); questionEntries[index].options.splice(Number(event.target.dataset.option), 1); renderQuestions(); }));
+    }
+    function collectQuestions() { return [...document.querySelectorAll('.question')].map((card) => { const index = Number(card.dataset.index); const q = questionEntries[index]; const value = { id: card.querySelector('.q-id').value.trim(), type: card.querySelector('.q-type').value, instructions: card.querySelector('.q-instructions').value }; if (value.type === 'noul') { value.false_description = card.querySelector('.false-description').value; value.true_description = card.querySelector('.true-description').value; } else { value.options = [...card.querySelectorAll('.option')].map((row) => ({ label: row.querySelector('.option-label').value, description: row.querySelector('.option-description').value })); } return value; }); }
+    async function loadModels() { const response = await fetch('/api/models'); const data = await response.json(); if (!response.ok) throw new Error(data.error); modelEntries = data.models; $('model').innerHTML = modelEntries.map((m) => `<option value="${esc(m.id)}">${esc(m.name)} · ${esc(m.backend)}</option>`).join(''); }
+    $('refreshModels').onclick = () => loadModels().catch((error) => setStatus(error.message, true)); $('addQuestion').onclick = () => { persistQuestionCards(); questionEntries.push({id:`question_${questionEntries.length + 1}`,type:'choice',instructions:'',options:[{label:'选项1',description:''},{label:'选项2',description:''}]}); renderQuestions(); }; $('addModel').onclick = () => $('modelDialog').showModal();
+    function setStatus(text, error = false) { $('status').textContent = text; $('status').className = `status ${error ? 'error' : 'ok'}`; }
+    function answerValue(answer) { if ('choice' in answer) return answer.choice; if ('score' in answer) return Number(answer.score).toFixed(3); if ('noul' in answer) return `${(Number(answer.noul) * 100).toFixed(1)}%`; return JSON.stringify(answer); }
+    function renderAnswers(data) { const entries = Object.entries(data.answers || {}); $('resultCards').innerHTML = entries.map(([id, answer]) => { const probs = answer.probabilities || {}; const rows = Object.entries(probs).map(([label, value]) => `<div class="prob"><span>${esc(label)}</span><div class="track"><i style="width:${Math.max(0,Math.min(100,Number(value)*100))}%"></i></div><span>${(Number(value)*100).toFixed(1)}%</span></div>`).join(''); const confidence = answer.answer_confidence ?? answer.confidence; return `<div class="answer"><div class="answer-title"><strong>${esc(id)}</strong><span class="answer-meta">${esc(answer.type || '')}${confidence == null ? '' : ` · 置信度 ${(Number(confidence)*100).toFixed(1)}%`}</span></div><div class="answer-value">${esc(answerValue(answer))}</div>${rows}</div>`; }).join('') || '<div class="hint">没有返回答案</div>'; }
+    $('run').onclick = async () => { $('run').disabled = true; setStatus('运行中...'); $('resultCards').textContent = '模型推理中...'; $('output').textContent = '模型推理中...'; try { const response = await fetch('/api/run', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({model_id:$('model').value,state:$('state').value,global_prompt:$('globalPrompt').value,questions:collectQuestions()}) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); $('inferenceLatency').textContent = `${data.inference_latency_ms.toFixed(2)} ms`; $('loadLatency').textContent = `${data.load_latency_ms.toFixed(2)} ms`; $('device').textContent = data.device; $('output').textContent = JSON.stringify(data, null, 2); renderAnswers(data); setStatus(data.model_cached ? '完成 · 模型已缓存' : '完成 · 首次加载'); } catch (error) { $('resultCards').textContent = error.message; $('output').textContent = error.stack || error.message; setStatus(error.message, true); } finally { $('run').disabled = false; } };
+    $('newModelBackend').addEventListener('change', () => { $('newModelEndpointField').style.display = $('newModelBackend').value === 'jev_vl_http' ? '' : 'none'; });
+    $('newModelEndpointField').style.display = 'none';
+    $('modelForm').addEventListener('submit', async (event) => { event.preventDefault(); $('modelStatus').textContent = '注册中...'; try { const payload = {id:$('newModelId').value,name:$('newModelName').value,backend:$('newModelBackend').value,path:$('newModelPath').value}; if (payload.backend === 'jev_vl_http') payload.endpoint = $('newModelEndpoint').value; const response = await fetch('/api/models', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); const data = await response.json(); if (!response.ok) throw new Error(data.error); $('modelDialog').close(); await loadModels(); $('model').value = data.model.id; setStatus(`已添加模型：${data.model.name}`); } catch(error) { $('modelStatus').textContent = error.message; $('modelStatus').className = 'status error'; } });
+    renderQuestions(); loadModels().catch((error) => setStatus(error.message, true));
+  </script>
+</body>
+</html>
